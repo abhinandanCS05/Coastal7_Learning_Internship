@@ -1,8 +1,8 @@
 # Coastal7_Learning_Internship
+
 # Coastal Seven Technologies – Internship Learning Repository
 
 This repository contains my daily learning tasks, practical implementations, and hands-on exercises completed as part of the **Coastal Seven Technologies Private Limited – Knowledge Factory Internship Program 2026 (Batch 7)**.
-
 
 ## 📌 Daily Task & GitHub Branch Structure
 
@@ -65,6 +65,34 @@ Every day's task is published in this repository and committed to its respective
 
 ---
 
+## 📅 Day 3 – Object-Oriented Programming in Python
+
+**Files:**
+
+* `Day3_Task_Coastal_Seven.ipynb`
+
+### Main Topics Covered
+
+* Classes and objects.
+* `__init__()` and `self`.
+* Instance variables and class variables.
+* Dunder methods such as `__init__()` and `__str__()`.
+* Building a practical `BankAccount` class.
+* Inheritance and code reuse.
+* `super()` for accessing parent class constructors and methods.
+* Method overriding.
+* Polymorphism and different object behaviors.
+* Abstract classes using `ABC` and `abstractmethod`.
+* Encapsulation and controlled data access using `@property`.
+
+### Practical Task
+
+* Final Bank Account mini project combining inheritance, `super()`, abstraction, polymorphism, and encapsulation.
+
+**Outcome:** Developed a strong understanding of Object-Oriented Programming in Python and applied core OOP concepts through a practical Bank Account implementation.
+
+---
+
 ## 🛠️ Technologies Used
 
 * Python
@@ -85,5 +113,6 @@ Every day's task is published in this repository and committed to its respective
 | ----- | -------------------------------------------------------- |
 | Day 1 | Python Fundamentals & FastAPI                            |
 | Day 2 | Control Flow, Functions, Data Structures & File Handling |
+| Day 3 | Object-Oriented Programming in Python                    |
 
 This repository documents my daily learning journey, practical implementations, and continuous progress throughout the internship.
