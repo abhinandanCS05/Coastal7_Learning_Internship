@@ -93,6 +93,46 @@ Every day's task is published in this repository and committed to its respective
 
 ---
 
+## 📅 Day 4 – SQL & Git Foundations + CLI Task Manager
+
+**Files:**
+
+* `Day4_Task_Costal_Seven.ipynb`
+* `Day_4_CLI_Task_Manager.zip`
+
+### Main Topics Covered
+
+* PostgreSQL database setup and Python integration using `psycopg2`.
+* Relational database concepts, tables, keys, and indexes.
+* SQL CRUD operations.
+* Aggregate functions, `GROUP BY`, and `HAVING`.
+* SQL `JOIN` operations across related tables.
+* Git initialization, branching, commits, and GitHub workflow.
+* Modular Python project structure.
+* OOP-based architecture using `Task` and `TaskManager` classes.
+* JSON export and persistent task management.
+* Logging and runtime error handling.
+* Unit testing using Python `unittest`.
+* CLI-based application execution and validation.
+
+### Mini-Project
+
+* **CLI Task Manager** – Built a command-line task management application using Python, OOP, and PostgreSQL with CRUD functionality, SQL queries, JSON export, logging, error handling, and unit testing.
+
+### Validation
+
+* PostgreSQL connection tested successfully.
+* CRUD operations and SQL queries tested.
+* JSON export verified.
+* Runtime validation and error handling tested.
+* Unit test suite executed successfully.
+* CLI application tested successfully.
+* Git branching and GitHub workflow completed.
+
+**Outcome:** Applied Python OOP concepts with PostgreSQL and Git to build and validate a modular CLI Task Manager with database integration, testing, logging, and export functionality.
+
+---
+
 ## 🛠️ Technologies Used
 
 * Python
@@ -100,9 +140,13 @@ Every day's task is published in this repository and committed to its respective
 * Pydantic
 * Uvicorn
 * Requests
+* PostgreSQL
+* psycopg2
+* SQL
 * JSON
 * CSV
 * Git & GitHub
+* unittest
 * Jupyter Notebook / Google Colab
 
 ---
@@ -114,5 +158,6 @@ Every day's task is published in this repository and committed to its respective
 | Day 1 | Python Fundamentals & FastAPI                            |
 | Day 2 | Control Flow, Functions, Data Structures & File Handling |
 | Day 3 | Object-Oriented Programming in Python                    |
+| Day 4 | SQL, PostgreSQL, Git Foundations & CLI Task Manager      |
 
 This repository documents my daily learning journey, practical implementations, and continuous progress throughout the internship.
