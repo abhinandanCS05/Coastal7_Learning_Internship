@@ -16,11 +16,3 @@ Use `alembic revision --autogenerate -m "create users and products"` and `alembi
 
 ## CRUD — CRUD means Create, Read, Update and Delete.
 Users and Products each have basic CRUD endpoints.
-
-## Colab
-Install: `pip install -r requirements.txt`
-Create DB: `sudo -u postgres psql -c "CREATE DATABASE day5_fastapi;"`
-Set `DATABASE_URL` to the PostgreSQL async URL.
-Run migrations, then start with:
-`uvicorn app.main:app --host 0.0.0.0 --port 8000`
-Swagger: `/docs`
