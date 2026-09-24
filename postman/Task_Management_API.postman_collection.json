@@ -1,0 +1,200 @@
+{
+  "info": {
+    "name": "Task Management API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "refresh_token",
+      "value": ""
+    },
+    {
+      "key": "project_id",
+      "value": "1"
+    },
+    {
+      "key": "task_id",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\": \"demo_user\", \"password\": \"DemoPass123\"}"
+        },
+        "url": "{{base_url}}/auth/register"
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\": \"demo_user\", \"password\": \"DemoPass123\"}"
+        },
+        "url": "{{base_url}}/auth/login"
+      }
+    },
+    {
+      "name": "Me",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base_url}}/auth/me"
+      }
+    },
+    {
+      "name": "Refresh",
+      "request": {
+        "method": "POST",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"refresh_token\": \"{{refresh_token}}\"}"
+        },
+        "url": "{{base_url}}/auth/refresh"
+      }
+    },
+    {
+      "name": "Create Project",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"Demo Project\", \"description\": \"First project\"}"
+        },
+        "url": "{{base_url}}/projects"
+      }
+    },
+    {
+      "name": "List Projects",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base_url}}/projects?skip=0&limit=10"
+      }
+    },
+    {
+      "name": "Update Project",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"Updated Project\"}"
+        },
+        "url": "{{base_url}}/projects/{{project_id}}"
+      }
+    },
+    {
+      "name": "Create Task",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Build API\", \"description\": \"Implement task API\", \"due_date\": \"2026-10-01\"}"
+        },
+        "url": "{{base_url}}/projects/{{project_id}}/tasks"
+      }
+    },
+    {
+      "name": "Filter + Pagination",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base_url}}/tasks?status=TODO&assignee_id=1&due_date=2026-10-01&skip=0&limit=10"
+      }
+    },
+    {
+      "name": "Update Task Status",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"status\": \"IN_PROGRESS\"}"
+        },
+        "url": "{{base_url}}/tasks/{{task_id}}"
+      }
+    },
+    {
+      "name": "Update Task",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Updated Task\"}"
+        },
+        "url": "{{base_url}}/tasks/{{task_id}}"
+      }
+    },
+    {
+      "name": "Delete Task",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{base_url}}/tasks/{{task_id}}"
+      }
+    }
+  ]
+}
