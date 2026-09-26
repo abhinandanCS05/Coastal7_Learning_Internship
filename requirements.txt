@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+python-multipart
+pillow
+pydantic-settings
+httpx
+pytest
+pytest-asyncio
+pytest-cov
+websockets
+black
+isort
+flake8
+mypy
+pre-commit
