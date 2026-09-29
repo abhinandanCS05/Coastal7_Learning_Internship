@@ -1,0 +1,25 @@
+{
+  "info": {
+    "name": "Day 10 E-Commerce Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "base_url", "value": "http://127.0.0.1:8000"},
+    {"key": "token", "value": ""},
+    {"key": "product_id", "value": "1"},
+    {"key": "order_id", "value": "1"}
+  ],
+  "item": [
+    {"name":"Health","request":{"method":"GET","url":"{{base_url}}/health"}},
+    {"name":"Register","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"email\":\"user@example.com\",\"password\":\"secret123\"}"},"url":"{{base_url}}/auth/register"}},
+    {"name":"Login","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"email\":\"user@example.com\",\"password\":\"secret123\"}"},"url":"{{base_url}}/auth/login"}},
+    {"name":"Create Product","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"name\":\"Laptop\",\"description\":\"Demo laptop\",\"price\":1000,\"stock\":10}"},"url":"{{base_url}}/products"}},
+    {"name":"List Products","request":{"method":"GET","url":"{{base_url}}/products"}},
+    {"name":"Get Product","request":{"method":"GET","url":"{{base_url}}/products/{{product_id}}"}},
+    {"name":"Add Cart Item","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"product_id\":1,\"quantity\":1}"},"url":"{{base_url}}/cart/items"}},
+    {"name":"Read Cart","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{token}}"}],"url":"{{base_url}}/cart"}},
+    {"name":"Place Order","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"items\":[{\"product_id\":1,\"quantity\":1}]}"},"url":"{{base_url}}/orders"}},
+    {"name":"List Orders","request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{token}}"}],"url":"{{base_url}}/orders"}},
+    {"name":"Update Order Status","request":{"method":"PATCH","header":[{"key":"Authorization","value":"Bearer {{token}}"}],"url":"{{base_url}}/orders/{{order_id}}/status?status=SHIPPED"}}
+  ]
+}
