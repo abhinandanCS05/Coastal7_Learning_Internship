@@ -1,0 +1,22 @@
+# Day 12 Integration Checklist
+
+- [x] Day 10 FastAPI architecture retained
+- [x] JWT authentication + role-aware login
+- [x] Admin product CRUD + image upload
+- [x] User cart + stock validation
+- [x] Order placement + stock reduction
+- [x] Celery order-confirmation architecture retained
+- [x] Product caching architecture retained
+- [x] User order WebSocket retained
+- [x] Day 11 React + Router + Axios interceptor
+- [x] Protected routes
+- [x] Day 12 Tailwind responsive UI
+- [x] Dark mode
+- [x] Reusable Button/Dialog/Table/Toast/Dropdown primitives
+- [x] React Hook Form + Zod validation
+- [x] Dynamic product variants
+- [x] Multi-step product studio
+- [x] react-dropzone image upload + preview
+- [x] Accessibility labels, focus states and keyboard-close dialogs
+- [x] Admin real-time "new order placed" notification
+- [x] Admin order command center

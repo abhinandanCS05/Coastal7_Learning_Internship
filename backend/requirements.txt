@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic-settings
+sqlalchemy
+PyJWT
+pwdlib[argon2]
+Pillow
+redis
+celery
+httpx
+websockets
+pytest
+pytest-asyncio
+pytest-cov

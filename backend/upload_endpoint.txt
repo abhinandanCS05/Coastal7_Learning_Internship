@@ -1,0 +1,77 @@
+from pathlib import Path
+
+@app.post("/products/{product_id}/image")
+async def upload_product_image(
+    product_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    product = db.get(Product, product_id)
+
+    if not product:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found",
+        )
+
+    allowed_types = {
+        "image/jpeg",
+        "image/pjpeg",
+        "image/png",
+        "image/webp",
+    }
+
+    extension = Path(file.filename or "").suffix.lower()
+
+    allowed_extensions = {
+        ".jpg",
+        ".jpeg",
+        ".jfif",
+        ".png",
+        ".webp",
+    }
+
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail="Only JPEG, PNG and WEBP images are allowed",
+        )
+
+    if extension not in allowed_extensions:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid image extension. Use JPG, JPEG, PNG or WEBP.",
+        )
+
+    if extension in {".jpeg", ".jfif"}:
+        extension = ".jpg"
+
+    filename = f"product_{product_id}{extension}"
+
+    settings.upload_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    destination = settings.upload_dir / filename
+
+    content = await file.read()
+
+    if not content:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded image is empty",
+        )
+
+    destination.write_bytes(content)
+
+    product.image_filename = filename
+    db.commit()
+    db.refresh(product)
+
+    return {
+        "message": "Product image uploaded successfully",
+        "filename": filename,
+        "url": f"/files/{filename}",
+    }
