@@ -1,4 +1,4 @@
-﻿Yes. Keep the README **only about this ShopFlow Day 10–13 project**, 
+﻿
 # ShopFlow — Full-Stack E-Commerce Platform
 
 A complete full-stack e-commerce application built with FastAPI and React, covering customer shopping workflows and an admin management system.
