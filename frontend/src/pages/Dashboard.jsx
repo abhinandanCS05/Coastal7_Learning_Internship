@@ -1,4 +1,4 @@
-﻿import { ArrowRight, ChevronRight, Headphones, ShieldCheck, Sparkles, Truck, Zap } from "lucide-react";
+import { ArrowRight, ChevronRight, Headphones, ShieldCheck, Sparkles, Truck, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const categories = [

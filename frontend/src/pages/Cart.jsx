@@ -169,7 +169,7 @@ export default function Cart() {
   if (cartQuery.isLoading) {
     return (
       <main className="py-20 text-center">
-        Loading cart…
+        Loading cartï¿½
       </main>
     );
   }

@@ -1,4 +1,4 @@
-﻿import {useEffect,useRef,useState} from 'react';import {PackageCheck,RefreshCw} from 'lucide-react';import api from '../services/api'
+import {useEffect,useRef,useState} from 'react';import {PackageCheck,RefreshCw} from 'lucide-react';import api from '../services/api'
 export default function Orders(){
  const [orders,setOrders]=useState([]),[error,setError]=useState(''),ws=useRef(null);
  const load=()=>api.get('/orders').then(r=>{setOrders(r.data);setError('')}).catch(e=>setError(e.response?.data?.detail||'Unable to load orders.'));

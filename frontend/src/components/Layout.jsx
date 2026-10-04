@@ -88,7 +88,7 @@ export default function Layout() {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search products, categories and more…"
+                placeholder="Search products, categories and moreï¿½"
                 className="w-full bg-transparent px-3 outline-none"
               />
             </div>
@@ -167,7 +167,7 @@ export default function Layout() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search ShopFlow…"
+              placeholder="Search ShopFlowï¿½"
               className="w-full bg-transparent px-2 outline-none"
             />
           </form>
@@ -227,7 +227,7 @@ export default function Layout() {
       </div>
 
       <footer className="mt-16 border-t border-slate-200 py-8 text-center text-sm text-slate-500 dark:border-slate-800">
-        © 2026 ShopFlow · Smart shopping, simple checkout.
+        ï¿½ 2026 ShopFlow ï¿½ Smart shopping, simple checkout.
       </footer>
     </div>
   );

@@ -49,7 +49,7 @@ const Card = memo(function Card({ p, wished, toggle, add }) {
 
       <div className="p-4">
         <div className="text-xs font-medium text-indigo-600">
-          {p.category} · {p.subcategory}
+          {p.category} ï¿½ {p.subcategory}
         </div>
 
         <div className="mt-1 flex items-start justify-between gap-2">
@@ -465,7 +465,7 @@ export default function Products() {
             </div>
           ) : loading ? (
             <div className="py-20 text-center text-slate-500">
-              Loading products…
+              Loading productsï¿½
             </div>
           ) : items.length === 0 ? (
             <div className="rounded-2xl border bg-white p-16 text-center dark:border-slate-800 dark:bg-slate-900">
@@ -497,7 +497,7 @@ export default function Products() {
               >
                 {productsQuery.isFetchingNextPage && (
                   <p className="text-sm text-slate-500">
-                    Loading more products…
+                    Loading more productsï¿½
                   </p>
                 )}
 

@@ -1,4 +1,4 @@
-﻿import {createContext,useContext,useEffect,useState} from 'react'
+import {createContext,useContext,useEffect,useState} from 'react'
 import api from '../services/api'
 const C=createContext(null)
 export function AuthProvider({children}){
