@@ -74,7 +74,7 @@ export default function Admin() {
       ]);
 
       setOrders(ordersResponse.data);
-      setProducts(productsResponse.data);
+      setProducts(productsResponse.data.items || []);
       setError("");
     } catch (e) {
       setError(

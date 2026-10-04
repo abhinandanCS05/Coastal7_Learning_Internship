@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, WebSocket, WebSocketDisconnect, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
@@ -100,20 +100,82 @@ def categories(db:Session=Depends(get_db)):
     return out
 
 @app.get("/products")
-def list_products(search:str="",category:str="",subcategory:str="",min_price:float|None=None,max_price:float|None=None,sort:str="relevance",db:Session=Depends(get_db)):
-    q=db.query(Product).filter(Product.is_active==True)
-    if search: q=q.filter(or_(Product.name.ilike(f"%{search}%"),Product.description.ilike(f"%{search}%"),Product.subcategory.ilike(f"%{search}%")))
-    if category: q=q.filter(Product.category==category)
-    if subcategory: q=q.filter(Product.subcategory==subcategory)
-    if min_price is not None: q=q.filter(Product.price>=min_price)
-    if max_price is not None: q=q.filter(Product.price<=max_price)
-    items=q.all()
-    if sort=="price_asc": items.sort(key=lambda x:x.price)
-    elif sort=="price_desc": items.sort(key=lambda x:x.price, reverse=True)
-    elif sort=="rating": items.sort(key=lambda x:x.rating, reverse=True)
-    elif sort=="newest": items.sort(key=lambda x:x.id, reverse=True)
-    elif sort=="discount": items.sort(key=lambda x:(x.mrp-x.price)/x.mrp, reverse=True)
-    return [serialize_product(x) for x in items]
+def list_products(
+    search: str = "",
+    category: str = "",
+    subcategory: str = "",
+    min_price: float | None = None,
+    max_price: float | None = None,
+    sort: str = "relevance",
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    q = db.query(Product).filter(Product.is_active == True)
+
+    if search:
+        q = q.filter(
+            or_(
+                Product.name.ilike(f"%{search}%"),
+                Product.description.ilike(f"%{search}%"),
+                Product.subcategory.ilike(f"%{search}%"),
+            )
+        )
+
+    if category:
+        q = q.filter(Product.category == category)
+
+    if subcategory:
+        q = q.filter(Product.subcategory == subcategory)
+
+    if min_price is not None:
+        q = q.filter(Product.price >= min_price)
+
+    if max_price is not None:
+        q = q.filter(Product.price <= max_price)
+
+    items = q.all()
+
+    if sort == "price_asc":
+        items.sort(key=lambda x: x.price)
+
+    elif sort == "price_desc":
+        items.sort(key=lambda x: x.price, reverse=True)
+
+    elif sort == "rating":
+        items.sort(key=lambda x: x.rating, reverse=True)
+
+    elif sort == "newest":
+        items.sort(key=lambda x: x.id, reverse=True)
+
+    elif sort == "discount":
+        items.sort(
+            key=lambda x: (
+                (x.mrp - x.price) / x.mrp
+                if x.mrp
+                else 0
+            ),
+            reverse=True,
+        )
+
+    total = len(items)
+
+    start = (page - 1) * page_size
+    end = start + page_size
+
+    paginated_items = items[start:end]
+
+    return {
+        "items": [
+            serialize_product(x)
+            for x in paginated_items
+        ],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "has_next": end < total,
+        "has_previous": page > 1,
+    }
 
 @app.get("/products/{product_id}")
 def product(product_id:int,db:Session=Depends(get_db)):
@@ -386,3 +448,5 @@ def order_json(o,db):
     discount=500 if subtotal>=7999 else (round(subtotal*.10,2) if subtotal>=999 else 0)
     shipping=0 if subtotal>=499 else 49
     return {"id":o.id,"user_id":o.user_id,"total":o.total,"subtotal":subtotal,"discount":discount,"shipping":shipping,"payment_method":o.payment_method,"payment_status":o.payment_status,"status":o.status,"customer":{"id":customer.id if customer else o.user_id,"full_name":customer.full_name if customer else address.get("full_name",""),"email":customer.email if customer else "","phone":customer.phone if customer else address.get("phone","")},"address":address,"created_at":o.created_at.isoformat(),"items":[{"product_id":x.product_id,"name":x.product_name,"quantity":x.quantity,"unit_price":x.unit_price,"line_total":round(x.quantity*x.unit_price,2)} for x in items]}
+
+

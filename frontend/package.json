@@ -9,16 +9,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.104.1",
     "axios": "^1.8.4",
+    "lucide-react": "^0.468.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.1.5",
-    "lucide-react": "^0.468.0"
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.13",
     "@vitejs/plugin-react": "^4.3.4",
-    "vite": "^7.3.6",
     "tailwindcss": "^4.1.13",
-    "@tailwindcss/vite": "^4.1.13"
+    "vite": "^7.3.6"
   }
 }
