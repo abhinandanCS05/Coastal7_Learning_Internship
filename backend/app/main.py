@@ -14,7 +14,7 @@ from .config import settings
 from .seed_data import PRODUCTS
 
 app = FastAPI(title="ShopFlow E-Commerce API", version="2.0.0")
-app.add_middleware(CORSMiddleware, allow_origins=[settings.frontend_origin, "http://localhost:5173"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=[settings.frontend_origin, "http://localhost:5173", "http://127.0.0.1:5173"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 app.mount("/files", StaticFiles(directory=str(settings.upload_dir)), name="files")
 
 # Lightweight local real-time channels. For production, use a shared pub/sub layer.
@@ -227,8 +227,8 @@ def remove_cart(product_id:int,user:User=Depends(current_user),db:Session=Depend
 @app.get("/offers")
 def offers():
     return [
-        {"code":"WELCOME10","title":"Welcome Offer","description":"10% off up to ₹500","type":"PERCENT","value":10,"min_order":999},
-        {"code":"SHOP500","title":"Flat ₹500 Off","description":"₹500 off on orders above ₹7,999","type":"FLAT","value":500,"min_order":7999},
+        {"code":"WELCOME10","title":"Welcome Offer","description":"10% off up to â‚¹500","type":"PERCENT","value":10,"min_order":999},
+        {"code":"SHOP500","title":"Flat â‚¹500 Off","description":"â‚¹500 off on orders above â‚¹7,999","type":"FLAT","value":500,"min_order":7999},
         {"code":"FREESHIP","title":"Free Delivery","description":"Free delivery on eligible orders","type":"SHIPPING","value":0,"min_order":499}
     ]
 
@@ -298,33 +298,98 @@ async def admin_ws(websocket:WebSocket):
     token=websocket.query_params.get("token","")
     db=next(get_db())
     user=websocket_user(token,db)
+
     if not user or user.role!="admin":
         await websocket.close(code=1008)
-        db.close(); return
-    await websocket.accept(); admin_connections.add(websocket)
+        db.close()
+        return
+
+    await websocket.accept()
+    admin_connections.add(websocket)
+
     try:
-        while True: await websocket.receive_text()
+        while True:
+            raw_message=await websocket.receive_text()
+
+            try:
+                message=json.loads(raw_message)
+            except json.JSONDecodeError:
+                continue
+
+            if message.get("type")=="chat_message":
+                text=str(message.get("message","")).strip()
+                target_user_id=message.get("target_user_id")
+
+                if not text or not target_user_id:
+                    continue
+
+                payload={
+                    "event":"chat_message",
+                    "sender_id":user.id,
+                    "sender_role":"admin",
+                    "sender_name":user.full_name or user.email,
+                    "target_user_id":int(target_user_id),
+                    "message":text,
+                }
+
+                await broadcast_customer(int(target_user_id),payload)
+
     except WebSocketDisconnect:
         admin_connections.discard(websocket)
     finally:
+        admin_connections.discard(websocket)
         db.close()
+
 
 @app.websocket("/ws/orders")
 async def customer_ws(websocket:WebSocket):
     token=websocket.query_params.get("token","")
     db=next(get_db())
     user=websocket_user(token,db)
+
     if not user or user.role!="user":
         await websocket.close(code=1008)
-        db.close(); return
-    await websocket.accept(); customer_connections.setdefault(user.id,set()).add(websocket)
+        db.close()
+        return
+
+    await websocket.accept()
+    customer_connections.setdefault(user.id,set()).add(websocket)
+
     try:
-        while True: await websocket.receive_text()
+        while True:
+            raw_message=await websocket.receive_text()
+
+            try:
+                message=json.loads(raw_message)
+            except json.JSONDecodeError:
+                continue
+
+            if message.get("type")=="chat_message":
+                text=str(message.get("message","")).strip()
+
+                if not text:
+                    continue
+
+                payload={
+                    "event":"chat_message",
+                    "sender_id":user.id,
+                    "sender_role":"user",
+                    "sender_name":user.full_name or user.email,
+                    "target_role":"admin",
+                    "message":text,
+                }
+
+                await broadcast_admin(payload)
+
     except WebSocketDisconnect:
         customer_connections.get(user.id,set()).discard(websocket)
     finally:
-        db.close()
+        customer_connections.get(user.id,set()).discard(websocket)
 
+        if not customer_connections.get(user.id):
+            customer_connections.pop(user.id,None)
+
+        db.close()
 
 @app.post("/admin/products/{product_id}/image")
 async def upload_product_image(

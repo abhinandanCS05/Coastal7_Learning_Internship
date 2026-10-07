@@ -3,10 +3,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import RealtimeNotifications from "./components/RealtimeNotifications";
+import NotificationPanel from "./components/NotificationPanel";
+import SupportChat from "./components/SupportChat";
 
 const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
 const Layout = lazy(() => import("./components/Layout"));
-
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Products = lazy(() => import("./pages/Products"));
 const ProductDetails = lazy(() => import("./pages/ProductDetails"));
@@ -29,6 +31,10 @@ function PageLoader() {
 export default function App() {
   return (
     <AuthProvider>
+      <RealtimeNotifications />
+      <NotificationPanel />
+      <SupportChat />
+
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/login" element={<Login />} />

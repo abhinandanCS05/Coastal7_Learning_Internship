@@ -1,0 +1,457 @@
+import { test, expect } from "@playwright/test";
+
+const ADMIN_EMAIL = "admin@shopflow.com";
+const ADMIN_PASSWORD = "Admin@123";
+
+async function loginAsAdmin(page: any) {
+  await page.goto("/login");
+
+  await page.getByLabel("Email").fill(ADMIN_EMAIL);
+  await page.getByLabel("Password").fill(ADMIN_PASSWORD);
+  await page.getByText("Admin", { exact: true }).click();
+
+  await page.getByRole("button", { name: /sign in/i }).click();
+
+  await expect(page).toHaveURL(/\/app$/, {
+    timeout: 10000,
+  });
+}
+
+async function openAdmin(page: any) {
+  await loginAsAdmin(page);
+
+  await page.goto("/app/admin");
+
+  await expect(
+    page.getByRole("heading", {
+      name: /shopflow admin command center/i,
+    })
+  ).toBeVisible({ timeout: 10000 });
+
+  await expect(
+    page.getByText("Product Management", { exact: true })
+  ).toBeVisible();
+}
+
+function getProductRows(page: any) {
+  return page
+    .locator("section")
+    .filter({
+      has: page.getByText("Product Management", { exact: true }),
+    })
+    .locator("tbody tr");
+}
+
+test.describe("Admin Product Management E2E", () => {
+  test("ADMIN-PRODUCT-01 - Admin Product Management loads", async ({
+    page,
+  }) => {
+    await openAdmin(page);
+
+    await expect(
+      page.getByText("Product Management", { exact: true })
+    ).toBeVisible();
+
+    await expect(
+      page.getByPlaceholder(
+        "Search by product name, category or ID..."
+      )
+    ).toBeVisible();
+  });
+
+  test("ADMIN-PRODUCT-02 - Product table renders", async ({ page }) => {
+    await openAdmin(page);
+
+    await expect(
+      page.getByRole("columnheader", { name: "Product" })
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("columnheader", { name: "Category" })
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("columnheader", { name: "Price" })
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("columnheader", { name: "MRP" })
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("columnheader", { name: "Stock" })
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("columnheader", { name: "Status" })
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("columnheader", { name: "Actions" })
+    ).toBeVisible();
+
+    const rows = await getProductRows(page).count();
+
+    expect(rows).toBeGreaterThan(0);
+  });
+
+  test("ADMIN-PRODUCT-03 - Product search by name", async ({ page }) => {
+    await openAdmin(page);
+
+    const rows = getProductRows(page);
+    const firstRow = rows.first();
+
+    const productText = await firstRow
+      .locator("td")
+      .first()
+      .innerText();
+
+    const productName = productText
+      .split("\n")
+      .map((x: string) => x.trim())
+      .filter(Boolean)[0];
+
+    expect(productName).toBeTruthy();
+
+    const search = page.getByPlaceholder(
+      "Search by product name, category or ID..."
+    );
+
+    await search.fill(productName);
+
+    await expect(
+      page.getByText(productName, { exact: true }).first()
+    ).toBeVisible();
+
+    expect(await rows.count()).toBeGreaterThan(0);
+  });
+
+  test("ADMIN-PRODUCT-04 - Product search by category", async ({
+    page,
+  }) => {
+    await openAdmin(page);
+
+    const rows = getProductRows(page);
+    const firstRow = rows.first();
+
+    const category = await firstRow
+      .locator("td")
+      .nth(1)
+      .innerText();
+
+    expect(category.trim()).toBeTruthy();
+
+    const search = page.getByPlaceholder(
+      "Search by product name, category or ID..."
+    );
+
+    await search.fill(category.trim());
+
+    expect(await rows.count()).toBeGreaterThan(0);
+  });
+
+  test("ADMIN-PRODUCT-05 - Product search by ID", async ({ page }) => {
+    await openAdmin(page);
+
+    const rows = getProductRows(page);
+    const firstRow = rows.first();
+
+    const productText = await firstRow.innerText();
+    const idMatch = productText.match(/#(\d+)/);
+
+    expect(idMatch).not.toBeNull();
+
+    const productId = idMatch![1];
+
+    const search = page.getByPlaceholder(
+      "Search by product name, category or ID..."
+    );
+
+    await search.fill(productId);
+
+    await expect(firstRow).toBeVisible();
+
+    expect(await rows.count()).toBeGreaterThan(0);
+  });
+
+  test("ADMIN-PRODUCT-06 - Add Product button opens editor", async ({
+    page,
+  }) => {
+    await openAdmin(page);
+
+    await page.getByRole("button", {
+      name: /add product/i,
+    }).click();
+
+    await expect(
+      page.getByRole("heading", {
+        name: "Create Product",
+        exact: true,
+      })
+    ).toBeVisible();
+  });
+
+  test("ADMIN-PRODUCT-07 - Create Product form renders", async ({
+    page,
+  }) => {
+    await openAdmin(page);
+
+    await page.getByRole("button", {
+      name: /add product/i,
+    }).click();
+
+    await expect(
+      page.getByRole("heading", {
+        name: "Create Product",
+        exact: true,
+      })
+    ).toBeVisible();
+
+    await expect(
+      page.getByText("Product Image", { exact: true })
+    ).toBeVisible();
+
+    await expect(
+      page.getByText("Product Name", { exact: true })
+    ).toBeVisible();
+
+    await expect(
+      page.getByText("Description", { exact: true })
+    ).toBeVisible();
+
+    await expect(
+      page.getByText("Category", { exact: true }).last()
+    ).toBeVisible();
+
+    await expect(
+      page.getByText("Subcategory", { exact: true }).last()
+    ).toBeVisible();
+
+    await expect(
+      page.getByText("Selling Price ()", { exact: true })
+    ).toBeVisible();
+
+    await expect(
+      page.getByText("MRP ()", { exact: true })
+    ).toBeVisible();
+
+    await expect(
+      page.getByText("Stock", { exact: true }).last()
+    ).toBeVisible();
+
+    await expect(
+      page.getByText("Badge", { exact: true })
+    ).toBeVisible();
+
+    await expect(
+      page.getByText("Offer Text", { exact: true })
+    ).toBeVisible();
+
+    await expect(
+      page.getByText("Rating", { exact: true })
+    ).toBeVisible();
+
+    await expect(
+      page.getByText("Review Count", { exact: true })
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("button", {
+        name: /create product/i,
+      })
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("button", {
+        name: /^cancel$/i,
+      })
+    ).toBeVisible();
+  });
+
+  test("ADMIN-PRODUCT-08 - Cancel create product", async ({ page }) => {
+    await openAdmin(page);
+
+    await page.getByRole("button", {
+      name: /add product/i,
+    }).click();
+
+    await expect(
+      page.getByRole("heading", {
+        name: "Create Product",
+        exact: true,
+      })
+    ).toBeVisible();
+
+    await page.getByRole("button", {
+      name: /^cancel$/i,
+    }).click();
+
+    await expect(
+      page.getByRole("heading", {
+        name: "Create Product",
+        exact: true,
+      })
+    ).not.toBeVisible();
+
+    await expect(
+      page.getByText("Product Management", { exact: true })
+    ).toBeVisible();
+  });
+
+  test("ADMIN-PRODUCT-09 - Edit Product opens editor", async ({
+    page,
+  }) => {
+    await openAdmin(page);
+
+    const editButton = page.getByTitle("Edit product").first();
+
+    await expect(editButton).toBeVisible();
+
+    await editButton.click();
+
+    await expect(
+      page.getByRole("heading", {
+        name: "Edit Product",
+        exact: true,
+      })
+    ).toBeVisible();
+  });
+
+  test("ADMIN-PRODUCT-10 - Product fields are populated", async ({
+    page,
+  }) => {
+    await openAdmin(page);
+
+    await page.getByTitle("Edit product").first().click();
+
+    await expect(
+      page.getByRole("heading", {
+        name: "Edit Product",
+        exact: true,
+      })
+    ).toBeVisible();
+
+    const inputs = page.locator(
+      "input:not([type='file']), textarea"
+    );
+
+    const count = await inputs.count();
+
+    expect(count).toBeGreaterThanOrEqual(10);
+
+    for (let i = 0; i < count; i++) {
+      const value = await inputs.nth(i).inputValue();
+      expect(value).toBeDefined();
+    }
+  });
+
+  test("ADMIN-PRODUCT-11 - Edit product and save changes", async ({
+    page,
+  }) => {
+    await openAdmin(page);
+
+    await page.getByTitle("Edit product").first().click();
+
+    await expect(
+      page.getByRole("heading", {
+        name: "Edit Product",
+        exact: true,
+      })
+    ).toBeVisible();
+
+    const allInputs = page.locator(
+      "input:not([type='file'])"
+    );
+
+    expect(await allInputs.count()).toBeGreaterThanOrEqual(8);
+
+    const saveButton = page.getByRole("button", {
+      name: /save changes/i,
+    });
+
+    await expect(saveButton).toBeVisible();
+
+    await saveButton.click();
+
+    await expect(
+      page.getByRole("heading", {
+        name: "Edit Product",
+        exact: true,
+      })
+    ).not.toBeVisible({ timeout: 10000 });
+  });
+
+  test("ADMIN-PRODUCT-12 - Price, MRP and stock fields are editable", async ({
+    page,
+  }) => {
+    await openAdmin(page);
+
+    await page.getByTitle("Edit product").first().click();
+
+    const numberInputs = page.locator(
+      "input[type='number']"
+    );
+
+    expect(await numberInputs.count()).toBeGreaterThanOrEqual(5);
+
+    for (let i = 0; i < await numberInputs.count(); i++) {
+      await expect(numberInputs.nth(i)).toBeEditable();
+    }
+  });
+
+  test("ADMIN-PRODUCT-13 - Archive product confirmation appears", async ({
+    page,
+  }) => {
+    await openAdmin(page);
+
+    let dialogSeen = false;
+
+    page.once("dialog", async (dialog) => {
+      dialogSeen = true;
+
+      expect(dialog.type()).toBe("confirm");
+      expect(dialog.message()).toMatch(/archive/i);
+
+      await dialog.dismiss();
+    });
+
+    await page.getByTitle("Archive product").first().click();
+
+    await page.waitForTimeout(500);
+
+    expect(dialogSeen).toBe(true);
+  });
+
+  test("ADMIN-PRODUCT-14 - Product Image Manager renders", async ({
+    page,
+  }) => {
+    await openAdmin(page);
+
+    await expect(
+      page.getByText("Product Image Manager", {
+        exact: true,
+      })
+    ).toBeVisible();
+
+    await expect(
+      page.getByText(/supported formats/i)
+    ).toBeVisible();
+  });
+
+  test("ADMIN-PRODUCT-15 - Image upload controls are available", async ({
+    page,
+  }) => {
+    await openAdmin(page);
+
+    await expect(
+      page.getByText("Product Image Manager", {
+        exact: true,
+      })
+    ).toBeVisible();
+
+    await expect(
+      page.getByText(/upload|drop/i).first()
+    ).toBeVisible();
+  });
+});
+

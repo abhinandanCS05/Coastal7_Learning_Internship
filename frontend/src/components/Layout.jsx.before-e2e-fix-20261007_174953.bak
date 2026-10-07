@@ -20,6 +20,8 @@ import {
   Menu,
   X,
   ShieldCheck,
+  MessageCircle,
+  Bell,
 } from "lucide-react";
 
 import { useQuery } from "@tanstack/react-query";
@@ -33,7 +35,8 @@ export default function Layout() {
   const location = useLocation();
 
   const isAdmin = user?.role === "admin";
-  const isAdminRoute = location.pathname.startsWith("/app/admin");
+  const isAdminPage =
+    location.pathname.startsWith("/app/admin");
 
   const [dark, setDark] = useState(
     localStorage.getItem("shopflow_theme") === "dark"
@@ -51,8 +54,8 @@ export default function Layout() {
   );
 
   /*
-   * Customer cart query.
-   * Admin does not need customer cart state.
+   * Admins do not use the customer cart.
+   * Therefore the cart query is disabled for admins.
    */
   const cartQuery = useQuery({
     queryKey: ["cart"],
@@ -87,12 +90,13 @@ export default function Layout() {
   }, [dark]);
 
   /*
-   * ========================================================
-   * ADMIN ROUTING
-   * ========================================================
+   * Prevent admins from entering customer shopping pages.
    */
-
-  if (isAdmin && location.pathname === "/app") {
+  if (
+    isAdmin &&
+    !isAdminPage &&
+    location.pathname !== "/app"
+  ) {
     return (
       <Navigate
         to="/app/admin"
@@ -101,9 +105,13 @@ export default function Layout() {
     );
   }
 
+  /*
+   * If an admin lands on /app, send them
+   * directly to the Admin Command Center.
+   */
   if (
     isAdmin &&
-    !isAdminRoute
+    location.pathname === "/app"
   ) {
     return (
       <Navigate
@@ -116,10 +124,7 @@ export default function Layout() {
   const search = (e) => {
     e.preventDefault();
 
-    if (!q.trim()) {
-      nav("/app/products");
-      return;
-    }
+    if (!q.trim()) return;
 
     nav(
       `/app/products?search=${encodeURIComponent(
@@ -135,19 +140,16 @@ export default function Layout() {
   };
 
   /*
-   * ========================================================
+   * ============================
    * ADMIN SHELL
-   * ========================================================
+   * ============================
    */
 
   if (isAdmin) {
     return (
       <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-
         <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
-
           <div className="mx-auto flex max-w-[1500px] items-center gap-4 px-5 py-3">
-
             <Link
               to="/app/admin"
               className="shrink-0 text-2xl font-black tracking-tight text-indigo-600"
@@ -178,6 +180,33 @@ export default function Layout() {
             </div>
 
             <div className="ml-auto flex items-center gap-2">
+              <button
+                title="Notifications"
+                onClick={() => {
+                  window.dispatchEvent(
+                    new CustomEvent(
+                      "shopflow-open-notifications"
+                    )
+                  );
+                }}
+                className="rounded-xl p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <Bell size={19} />
+              </button>
+
+              <button
+                title="Support Chat"
+                onClick={() => {
+                  window.dispatchEvent(
+                    new CustomEvent(
+                      "shopflow-open-support"
+                    )
+                  );
+                }}
+                className="rounded-xl p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <MessageCircle size={19} />
+              </button>
 
               <button
                 title="Toggle theme"
@@ -195,7 +224,8 @@ export default function Layout() {
                 <User size={17} />
 
                 <span className="max-w-36 truncate text-sm font-semibold">
-                  {user?.full_name || user?.email}
+                  {user?.full_name ||
+                    user?.email}
                 </span>
               </div>
 
@@ -206,56 +236,47 @@ export default function Layout() {
               >
                 <LogOut size={17} />
               </button>
-
             </div>
           </div>
 
           <div className="border-t border-slate-100 dark:border-slate-800">
-
             <div className="mx-auto flex max-w-[1500px] items-center gap-2 px-5 py-2">
-
               <Link
                 to="/app/admin"
-                className="flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-bold text-white"
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold ${
+                  isAdminPage
+                    ? "bg-indigo-600 text-white"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
               >
                 <LayoutDashboard size={16} />
                 Command Center
               </Link>
-
             </div>
-
           </div>
-
         </header>
 
-        <main className="mx-auto max-w-[1500px] px-4">
+        <div className="mx-auto max-w-[1500px] px-4">
           <Outlet />
-        </main>
+        </div>
 
         <footer className="mt-16 border-t border-slate-200 py-8 text-center text-sm text-slate-500 dark:border-slate-800">
           ShopFlow Admin Console · Secure Operations
         </footer>
-
       </div>
     );
   }
 
   /*
-   * ========================================================
+   * ============================
    * CUSTOMER SHELL
-   * ========================================================
-   *
-   * This section intentionally preserves the previous
-   * Day-16 customer experience.
+   * ============================
    */
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-
       <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
-
         <div className="mx-auto flex max-w-[1500px] items-center gap-4 px-4 py-3">
-
           <button
             className="md:hidden"
             onClick={() => setOpen(!open)}
@@ -277,24 +298,21 @@ export default function Layout() {
             onSubmit={search}
             className="hidden min-w-0 flex-1 md:block"
           >
-
             <div className="flex h-11 max-w-2xl items-center rounded-xl border border-slate-200 bg-slate-50 px-3 dark:border-slate-700 dark:bg-slate-900">
-
               <Search size={18} />
 
               <input
                 value={q}
-                onChange={(e) => setQ(e.target.value)}
+                onChange={(e) =>
+                  setQ(e.target.value)
+                }
                 placeholder="Search products, categories and more..."
                 className="w-full bg-transparent px-3 outline-none"
               />
-
             </div>
-
           </form>
 
           <nav className="ml-auto hidden items-center gap-1 md:flex">
-
             <Link
               title="Wishlist"
               to="/app/wishlist"
@@ -338,11 +356,11 @@ export default function Layout() {
             </button>
 
             <div className="ml-1 flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 dark:border-slate-700">
-
               <User size={17} />
 
               <span className="max-w-28 truncate text-sm">
-                {user?.full_name || user?.email}
+                {user?.full_name ||
+                  user?.email}
               </span>
 
               <button
@@ -351,40 +369,32 @@ export default function Layout() {
               >
                 <LogOut size={16} />
               </button>
-
             </div>
-
           </nav>
-
         </div>
 
         <div className="border-t border-slate-100 px-4 py-2 md:hidden dark:border-slate-800">
-
           <form
             onSubmit={search}
             className="flex h-10 items-center rounded-lg border px-3"
           >
-
             <Search size={17} />
 
             <input
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={(e) =>
+                setQ(e.target.value)
+              }
               placeholder="Search ShopFlow..."
               className="w-full bg-transparent px-2 outline-none"
             />
-
           </form>
-
         </div>
-
       </header>
 
       {open && (
         <div className="border-b bg-white p-4 md:hidden dark:bg-slate-950">
-
           <div className="grid grid-cols-2 gap-2 text-sm">
-
             <Link
               onClick={() => setOpen(false)}
               to="/app/products"
@@ -416,20 +426,17 @@ export default function Layout() {
             >
               Orders
             </Link>
-
           </div>
-
         </div>
       )}
 
-      <main className="mx-auto max-w-[1500px] px-4">
+      <div className="mx-auto max-w-[1500px] px-4">
         <Outlet />
-      </main>
+      </div>
 
       <footer className="mt-16 border-t border-slate-200 py-8 text-center text-sm text-slate-500 dark:border-slate-800">
         © 2026 ShopFlow · Smart shopping, simple checkout.
       </footer>
-
     </div>
   );
 }
