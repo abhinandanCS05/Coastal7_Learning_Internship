@@ -1,0 +1,14 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://127.0.0.1:5173",
+      "localStorage": [
+        {
+          "name": "shopflow_token",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwicm9sZSI6InVzZXIiLCJlbWFpbCI6ImRlbW9Ac2hvcGZsb3cuY29tIiwiZXhwIjoxNzkxNDY1MDI5fQ.NeFvwZlk9KlWymeGrupsn9fo7JI_DUjDx7DVhGFdC4A"
+        }
+      ]
+    }
+  ]
+}

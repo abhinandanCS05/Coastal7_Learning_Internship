@@ -157,9 +157,7 @@ test.describe("Authentication - Customer Login", () => {
 
     await expect(password).toHaveAttribute("type", "password");
 
-    const toggle = page.locator('button[type="button"]').filter({
-      has: page.locator("svg"),
-    }).first();
+    const toggle = password.locator("..").getByRole("button");
 
     await toggle.click();
 

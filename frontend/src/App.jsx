@@ -1,3 +1,4 @@
+import BackgroundJobs from "./pages/BackgroundJobs";
 import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
@@ -54,7 +55,8 @@ export default function App() {
             <Route path="wishlist" element={<Wishlist />} />
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
-            <Route path="orders" element={<Orders />} />
+            <Route path="background-jobs" element={<BackgroundJobs />} />
+        <Route path="orders" element={<Orders />} />
 
             <Route
               path="admin"

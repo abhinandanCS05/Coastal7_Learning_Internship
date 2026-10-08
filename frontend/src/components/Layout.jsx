@@ -33,7 +33,7 @@ export default function Layout() {
   const location = useLocation();
 
   const isAdmin = user?.role === "admin";
-  const isAdminRoute = location.pathname.startsWith("/app/admin");
+  const isAdminRoute = location.pathname.startsWith("/app/admin") || location.pathname.startsWith("/app/background-jobs");
 
   const [dark, setDark] = useState(
     localStorage.getItem("shopflow_theme") === "dark"

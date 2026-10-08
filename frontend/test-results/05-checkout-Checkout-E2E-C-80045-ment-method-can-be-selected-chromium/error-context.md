@@ -1,0 +1,537 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: 05-checkout.spec.ts >> Checkout E2E >> CHECKOUT-11: payment method can be selected
+- Location: e2e\05-checkout.spec.ts:263:3
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: locator('article').filter({ hasText: 'Nova X Pro 5G' }).first()
+Expected: visible
+Timeout: 10000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" locator('article').filter({ hasText: 'Nova X Pro 5G' }).first() with timeout 10000ms
+  - waiting for locator('article').filter({ hasText: 'Nova X Pro 5G' }).first()
+
+```
+
+```yaml
+- button "Notifications":
+  - img
+- button "Support":
+  - img
+  - text: Support
+- banner:
+  - link "shopflow":
+    - /url: /app
+  - img
+  - textbox "Search products, categories and more..."
+  - navigation:
+    - link "Wishlist":
+      - /url: /app/wishlist
+      - img
+    - link "My Orders":
+      - /url: /app/orders
+      - img
+    - link "1":
+      - /url: /app/cart
+      - img
+      - text: "1"
+    - button "Toggle theme":
+      - img
+    - img
+    - text: Demo Customer
+    - button "Logout":
+      - img
+- main:
+  - main:
+    - paragraph: SHOP / CATALOG
+    - heading "Discover products" [level=1]
+    - paragraph: Showing 20 of 126 products
+    - combobox:
+      - 'option "Sort: Relevance" [selected]'
+      - 'option "Price: Low to High"'
+      - 'option "Price: High to Low"'
+      - option "Customer Rating"
+      - option "Best Discount"
+      - option "Newest"
+    - complementary:
+      - img
+      - text: Filters
+      - button "Clear"
+      - text: Search
+      - textbox "Search"
+      - text: Category
+      - combobox "Category":
+        - option "All categories" [selected]
+        - option "Electronics"
+        - option "Home & Kitchen"
+        - option "accesories"
+        - option "Personal Care"
+        - option "Cycles"
+        - option "Accessories"
+        - option "Clothing"
+        - option "Sports & Fitness"
+        - option "Beauty & Personal Care"
+        - option "Books & Stationery"
+      - textbox "Min":
+        - /placeholder: "Min "
+      - textbox "Max":
+        - /placeholder: "Max "
+    - article:
+      - link "PixelEdge 9 Only 0 left Limited Stock":
+        - /url: /app/products/2
+        - img "PixelEdge 9"
+        - text: Only 0 left Limited Stock
+      - text: Electronics � Phones
+      - link "PixelEdge 9":
+        - /url: /app/products/2
+      - button "Remove from wishlist":
+        - img
+      - img
+      - text: 4.1 (562) 999 1,198.8 17% off
+      - paragraph: Save ₹199 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "GalaxyMax Ultra":
+        - /url: /app/products/3
+        - img "GalaxyMax Ultra"
+      - text: Electronics � Phones
+      - link "GalaxyMax Ultra":
+        - /url: /app/products/3
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4 (147) 19,999 23,998.8 17% off
+      - paragraph: Save ₹3999 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "AeroPhone 12":
+        - /url: /app/products/4
+        - img "AeroPhone 12"
+      - text: Electronics � Phones
+      - link "AeroPhone 12":
+        - /url: /app/products/4
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.7 (104) 19,999 22,998.85 13% off
+      - paragraph: Save ₹2999 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "ProBook Air 14":
+        - /url: /app/products/5
+        - img "ProBook Air 14"
+      - text: Electronics � Laptops
+      - link "ProBook Air 14":
+        - /url: /app/products/5
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.6 (160) 19,999 24,998.75 20% off
+      - paragraph: Save ₹4999 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "UltraNote 15":
+        - /url: /app/products/6
+        - img "UltraNote 15"
+      - text: Electronics � Laptops
+      - link "UltraNote 15":
+        - /url: /app/products/6
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.7 (516) 12,999 16,248.75 20% off
+      - paragraph: Save ₹3249 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "CreatorBook 16 Bestseller":
+        - /url: /app/products/7
+        - img "CreatorBook 16"
+        - text: Bestseller
+      - text: Electronics � Laptops
+      - link "CreatorBook 16":
+        - /url: /app/products/7
+      - button "Remove from wishlist":
+        - img
+      - img
+      - text: 4.7 (671) 29,999 38,998.7 23% off
+      - paragraph: Save ₹8999 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "WorkMate 13":
+        - /url: /app/products/8
+        - img "WorkMate 13"
+      - text: Electronics � Laptops
+      - link "WorkMate 13":
+        - /url: /app/products/8
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.7 (835) 1,999 2,298.85 13% off
+      - paragraph: Save ₹299 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "Vision 43 4K":
+        - /url: /app/products/9
+        - img "Vision 43 4K"
+      - text: Electronics � Televisions
+      - link "Vision 43 4K":
+        - /url: /app/products/9
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.4 (784) 6,999 8,748.75 20% off
+      - paragraph: Save ₹1749 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "Cinema 55 QLED":
+        - /url: /app/products/10
+        - img "Cinema 55 QLED"
+      - text: Electronics � Televisions
+      - link "Cinema 55 QLED":
+        - /url: /app/products/10
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.4 (318) 999 1,298.7 23% off
+      - paragraph: Save ₹299 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "ViewMax 65":
+        - /url: /app/products/11
+        - img "ViewMax 65"
+      - text: Electronics � Televisions
+      - link "ViewMax 65":
+        - /url: /app/products/11
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.3 (398) 1,299 1,558.8 17% off
+      - paragraph: Save ₹259 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "SmartTV 50":
+        - /url: /app/products/12
+        - img "SmartTV 50"
+      - text: Electronics � Televisions
+      - link "SmartTV 50":
+        - /url: /app/products/12
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.3 (151) 2,999 3,748.75 20% off
+      - paragraph: Save ₹749 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "Smart Speaker":
+        - /url: /app/products/13
+        - img "Smart Speaker"
+      - text: Electronics � Home Gadgets
+      - link "Smart Speaker":
+        - /url: /app/products/13
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.2 (259) 4,999 6,498.7 23% off
+      - paragraph: Save ₹1499 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "Robot Vacuum Bestseller":
+        - /url: /app/products/14
+        - img "Robot Vacuum"
+        - text: Bestseller
+      - text: Electronics � Home Gadgets
+      - link "Robot Vacuum":
+        - /url: /app/products/14
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.1 (458) 29,999 35,998.8 17% off
+      - paragraph: Save ₹5999 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "Air Purifier":
+        - /url: /app/products/15
+        - img "Air Purifier"
+      - text: Electronics � Home Gadgets
+      - link "Air Purifier":
+        - /url: /app/products/15
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4 (452) 6,999 9,098.7 23% off
+      - paragraph: Save ₹2099 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "Smart Display Only 9 left Limited Stock":
+        - /url: /app/products/16
+        - img "Smart Display"
+        - text: Only 9 left Limited Stock
+      - text: Electronics � Home Gadgets
+      - link "Smart Display":
+        - /url: /app/products/16
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.1 (843) 29,999 34,498.85 13% off
+      - paragraph: Save ₹4499 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "Wireless Earbuds":
+        - /url: /app/products/17
+        - img "Wireless Earbuds"
+      - text: Electronics � Accessories
+      - link "Wireless Earbuds":
+        - /url: /app/products/17
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.1 (441) 8,999 11,698.7 23% off
+      - paragraph: Save ₹2699 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "Mechanical Keyboard":
+        - /url: /app/products/18
+        - img "Mechanical Keyboard"
+      - text: Electronics � Accessories
+      - link "Mechanical Keyboard":
+        - /url: /app/products/18
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.2 (892) 8,999 11,248.75 20% off
+      - paragraph: Save ₹2249 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "USB-C Hub":
+        - /url: /app/products/19
+        - img "USB-C Hub"
+      - text: Electronics � Accessories
+      - link "USB-C Hub":
+        - /url: /app/products/19
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.6 (158) 6,999 8,748.75 20% off
+      - paragraph: Save ₹1749 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "Power Bank":
+        - /url: /app/products/20
+        - img "Power Bank"
+      - text: Electronics � Accessories
+      - link "Power Bank":
+        - /url: /app/products/20
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.2 (650) 29,999 35,998.8 17% off
+      - paragraph: Save ₹5999 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+    - article:
+      - link "Classic Oxford Shirt Bestseller":
+        - /url: /app/products/21
+        - img "Classic Oxford Shirt"
+        - text: Bestseller
+      - text: Clothing � Men
+      - link "Classic Oxford Shirt":
+        - /url: /app/products/21
+      - button "Add to wishlist":
+        - img
+      - img
+      - text: 4.5 (601) 499 573.85 13% off
+      - paragraph: Save ₹74 today
+      - button "Add to cart":
+        - img
+        - text: Add to cart
+- contentinfo: © 2026 ShopFlow · Smart shopping, simple checkout.
+```
+
+# Test source
+
+```ts
+  1   | import { test, expect, Page } from "@playwright/test";
+  2   | 
+  3   | const CUSTOMER_EMAIL = "demo@shopflow.com";
+  4   | const CUSTOMER_PASSWORD = "Demo@123";
+  5   | const PRODUCT_NAME = "Nova X Pro 5G";
+  6   | 
+  7   | async function loginAsCustomer(page: Page) {
+  8   |   await page.goto("/login");
+  9   | 
+  10  |   await page.getByLabel("Email").fill(CUSTOMER_EMAIL);
+  11  |   await page.getByLabel("Password").fill(CUSTOMER_PASSWORD);
+  12  | 
+  13  |   const customerRole = page.getByText("Customer", { exact: true });
+  14  | 
+  15  |   if (await customerRole.count()) {
+  16  |     await customerRole.click();
+  17  |   }
+  18  | 
+  19  |   await page.getByRole("button", { name: /sign in/i }).click();
+  20  | 
+  21  |   await expect(page).toHaveURL(/\/app/);
+  22  | }
+  23  | 
+  24  | async function ensureCartProduct(page: Page) {
+  25  |   await page.goto("/app/products", {
+  26  |     waitUntil: "domcontentloaded",
+  27  |   });
+  28  | 
+  29  |   const productCard = page
+  30  |     .locator("article")
+  31  |     .filter({ hasText: PRODUCT_NAME })
+  32  |     .first();
+  33  | 
+> 34  |   await expect(productCard).toBeVisible({
+      |                             ^ Error: expect(locator).toBeVisible() failed
+  35  |     timeout: 10000,
+  36  |   });
+  37  | 
+  38  |   const addButton = productCard.getByRole("button", {
+  39  |     name: /add to cart/i,
+  40  |   });
+  41  | 
+  42  |   if (await addButton.count()) {
+  43  |     await addButton.click();
+  44  |   }
+  45  | 
+  46  |   await page.goto("/app/cart", {
+  47  |     waitUntil: "domcontentloaded",
+  48  |   });
+  49  | 
+  50  |   await expect(
+  51  |     page.getByText(PRODUCT_NAME, { exact: true })
+  52  |   ).toBeVisible({
+  53  |     timeout: 10000,
+  54  |   });
+  55  | }
+  56  | 
+  57  | async function openCheckout(page: Page) {
+  58  |   await page.goto("/app/checkout", {
+  59  |     waitUntil: "domcontentloaded",
+  60  |   });
+  61  | 
+  62  |   await expect(
+  63  |     page.getByRole("heading", {
+  64  |       name: "Secure Checkout",
+  65  |       exact: true,
+  66  |     })
+  67  |   ).toBeVisible({
+  68  |     timeout: 10000,
+  69  |   });
+  70  | }
+  71  | 
+  72  | async function prepareCheckout(page: Page) {
+  73  |   await loginAsCustomer(page);
+  74  |   await ensureCartProduct(page);
+  75  |   await openCheckout(page);
+  76  | }
+  77  | 
+  78  | async function fillValidAddress(page: Page) {
+  79  |   await page.getByLabel("Full name").fill("Demo Customer");
+  80  |   await page.getByRole("textbox", { name: "Phone" }).fill("9876543210");
+  81  |   await page.getByLabel("Address").fill("123 Main Street");
+  82  |   await page.getByLabel("City").fill("Guntur");
+  83  |   await page.getByLabel("State").fill("Andhra Pradesh");
+  84  |   await page.getByLabel("PIN code").fill("522001");
+  85  | }
+  86  | 
+  87  | test.describe("Checkout E2E", () => {
+  88  | 
+  89  |   test("CHECKOUT-02: all delivery address fields render", async ({
+  90  |     page,
+  91  |   }) => {
+  92  |     await prepareCheckout(page);
+  93  | 
+  94  |     await expect(page.getByLabel("Full name")).toBeVisible();
+  95  |     await expect(page.getByRole("textbox", { name: "Phone" })).toBeVisible();
+  96  |     await expect(page.getByLabel("Address")).toBeVisible();
+  97  |     await expect(page.getByLabel("City")).toBeVisible();
+  98  |     await expect(page.getByLabel("State")).toBeVisible();
+  99  |     await expect(page.getByLabel("PIN code")).toBeVisible();
+  100 |   });
+  101 | 
+  102 |   test("CHECKOUT-03: saved customer address is prefilled", async ({
+  103 |     page,
+  104 |   }) => {
+  105 |     await loginAsCustomer(page);
+  106 |     await openCheckout(page);
+  107 | 
+  108 |     await expect(page.getByLabel("Full name")).toHaveValue(
+  109 |       "Demo Customer"
+  110 |     );
+  111 | 
+  112 |     await expect(page.getByRole("textbox", { name: "Phone" })).toHaveValue(
+  113 |       "9876543210"
+  114 |     );
+  115 | 
+  116 |     await expect(page.getByLabel("City")).toHaveValue("Guntur");
+  117 |     await expect(page.getByLabel("State")).toHaveValue(
+  118 |       "Andhra Pradesh"
+  119 |     );
+  120 |   });
+  121 | 
+  122 |   test("CHECKOUT-04: empty full name is rejected", async ({ page }) => {
+  123 |     await prepareCheckout(page);
+  124 | 
+  125 |     await page.getByLabel("Full name").fill("");
+  126 | 
+  127 |     await page.getByRole("button", {
+  128 |       name: /place order/i,
+  129 |     }).click();
+  130 | 
+  131 |     await expect(
+  132 |       page.getByText("Full name must be at least 2 characters", {
+  133 |         exact: true,
+  134 |       })
+```

@@ -12,10 +12,18 @@ from .schemas import RegisterIn, LoginIn, AddressIn, CartIn, CheckoutIn, StatusI
 from .security import hash_password, verify_password, create_token, current_user, admin_user, customer_user
 from .config import settings
 from .seed_data import PRODUCTS
+from .day18 import router as day18_router
+
 
 app = FastAPI(title="ShopFlow E-Commerce API", version="2.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=[settings.frontend_origin, "http://localhost:5173", "http://127.0.0.1:5173"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 app.mount("/files", StaticFiles(directory=str(settings.upload_dir)), name="files")
+app.mount(
+    "/invoices",
+    StaticFiles(directory="invoices"),
+    name="invoices",
+)
+app.include_router(day18_router)
 
 # Lightweight local real-time channels. For production, use a shared pub/sub layer.
 admin_connections: set[WebSocket] = set()
@@ -114,13 +122,8 @@ def list_products(
     q = db.query(Product).filter(Product.is_active == True)
 
     if search:
-        q = q.filter(
-            or_(
-                Product.name.ilike(f"%{search}%"),
-                Product.description.ilike(f"%{search}%"),
-                Product.subcategory.ilike(f"%{search}%"),
-            )
-        )
+        from app.search_service import apply_product_search
+        q = apply_product_search(q, search, db)
 
     if category:
         q = q.filter(Product.category == category)
@@ -260,11 +263,26 @@ async def checkout(data:CheckoutIn,user:User=Depends(customer_user),db:Session=D
 
 @app.get("/orders")
 def orders(user:User=Depends(current_user),db:Session=Depends(get_db)):
-    return [order_json(o,db) for o in db.query(Order).filter(Order.user_id==user.id).order_by(Order.id.desc()).all()]
+    orders_list=db.query(Order).filter(Order.user_id==user.id).order_by(Order.id.desc()).all()
+    order_ids=[o.id for o in orders_list]
+    items_by_order={oid:[] for oid in order_ids}
+    if order_ids:
+        for item in db.query(OrderItem).filter(OrderItem.order_id.in_(order_ids)).all():
+            items_by_order[item.order_id].append(item)
+    customers={user.id:user}
+    return [order_json(o,db,items_by_order.get(o.id,[]),customers) for o in orders_list]
 
 @app.get("/admin/orders")
 def admin_orders(user:User=Depends(admin_user),db:Session=Depends(get_db)):
-    return [order_json(o,db) for o in db.query(Order).order_by(Order.id.desc()).all()]
+    orders_list=db.query(Order).order_by(Order.id.desc()).all()
+    order_ids=[o.id for o in orders_list]
+    items_by_order={oid:[] for oid in order_ids}
+    if order_ids:
+        for item in db.query(OrderItem).filter(OrderItem.order_id.in_(order_ids)).all():
+            items_by_order[item.order_id].append(item)
+    user_ids={o.user_id for o in orders_list}
+    customers={u.id:u for u in db.query(User).filter(User.id.in_(user_ids)).all()} if user_ids else {}
+    return [order_json(o,db,items_by_order.get(o.id,[]),customers) for o in orders_list]
 
 @app.patch("/admin/orders/{order_id}/status")
 async def admin_status(order_id:int,data:StatusIn,user:User=Depends(admin_user),db:Session=Depends(get_db)):
@@ -505,13 +523,14 @@ def cart_response(rows,db):
         items.append({"product":serialize_product(p),"quantity":r.quantity,"line_total":line})
     return {"items":items,"subtotal":total,"count":count}
 
-def order_json(o,db):
-    items=db.query(OrderItem).filter(OrderItem.order_id==o.id).all()
-    customer=db.get(User,o.user_id)
+def order_json(o,db,items=None,customers=None):
+    items = items if items is not None else db.query(OrderItem).filter(OrderItem.order_id==o.id).all()
+    customer = customers.get(o.user_id) if customers is not None else db.get(User,o.user_id)
     address=json.loads(o.address_snapshot or "{}")
     subtotal=round(sum(x.quantity*x.unit_price for x in items),2)
     discount=500 if subtotal>=7999 else (round(subtotal*.10,2) if subtotal>=999 else 0)
     shipping=0 if subtotal>=499 else 49
     return {"id":o.id,"user_id":o.user_id,"total":o.total,"subtotal":subtotal,"discount":discount,"shipping":shipping,"payment_method":o.payment_method,"payment_status":o.payment_status,"status":o.status,"customer":{"id":customer.id if customer else o.user_id,"full_name":customer.full_name if customer else address.get("full_name",""),"email":customer.email if customer else "","phone":customer.phone if customer else address.get("phone","")},"address":address,"created_at":o.created_at.isoformat(),"items":[{"product_id":x.product_id,"name":x.product_name,"quantity":x.quantity,"unit_price":x.unit_price,"line_total":round(x.quantity*x.unit_price,2)} for x in items]}
+
 
 
