@@ -73,7 +73,7 @@ export default function Checkout() {
   }, [reset]);
 
   if (loading || !cart || !me) {
-    return <main className="py-20 text-center">Loading checkoutâ€¦</main>;
+    return <main className="zeta-page zeta-checkout zeta-page py-20 text-center">Loading checkoutÃ¢â‚¬Â¦</main>;
   }
 
   const submit = async (address) => {
@@ -110,7 +110,7 @@ export default function Checkout() {
   );
 
   return (
-    <main className="py-8">
+    <main className="zeta-page zeta-checkout zeta-page py-8">
       <h1 className="text-3xl font-black">Secure Checkout</h1>
 
       <form
@@ -249,9 +249,9 @@ export default function Checkout() {
                 Order Placed
               </>
             ) : isSubmitting ? (
-              'Processing Orderâ€¦'
+              'Processing OrderÃ¢â‚¬Â¦'
             ) : (
-              `Place Order Â· ${
+              `Place Order Ã‚Â· ${
                 method === 'COD' ? 'Pay on Delivery' : method
               }`
             )}
@@ -263,7 +263,7 @@ export default function Checkout() {
                 key={offer.code}
                 className="mt-2 rounded-lg bg-green-50 p-2 text-xs text-green-700"
               >
-                <b>{offer.code}</b> Â· {offer.description}
+                <b>{offer.code}</b> Ã‚Â· {offer.description}
               </div>
             ))}
           </div>

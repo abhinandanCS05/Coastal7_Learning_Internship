@@ -1,10 +1,32 @@
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, WebSocket, WebSocketDisconnect, Query
+﻿from fastapi import (
+    FastAPI,
+    Depends,
+    HTTPException,
+    UploadFile,
+    File,
+    WebSocket,
+    WebSocketDisconnect,
+    Query,
+    Request,
+)
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from pathlib import Path
 import json, shutil, jwt
+from io import BytesIO
+from datetime import datetime
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_RIGHT
+from reportlab.lib.units import mm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 
 from .database import Base, engine, get_db
 from .models import User, Product, Wishlist, CartItem, Order, OrderItem
@@ -15,15 +37,27 @@ from .seed_data import PRODUCTS
 from .day18 import router as day18_router
 
 
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(title="ShopFlow E-Commerce API", version="2.0.0")
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(CORSMiddleware, allow_origins=[settings.frontend_origin, "http://localhost:5173", "http://127.0.0.1:5173"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 app.mount("/files", StaticFiles(directory=str(settings.upload_dir)), name="files")
-app.mount(
-    "/invoices",
-    StaticFiles(directory="invoices"),
-    name="invoices",
-)
+# Invoice PDFs are generated on demand and served through authenticated endpoints.
 app.include_router(day18_router)
+
+
+@app.middleware("http")
+async def day19_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    return response
+
 
 # Lightweight local real-time channels. For production, use a shared pub/sub layer.
 admin_connections: set[WebSocket] = set()
@@ -78,14 +112,16 @@ def startup():
 def health(): return {"status":"ok","service":"ShopFlow API","products":len(PRODUCTS)}
 
 @app.post("/auth/register")
-def register(data:RegisterIn, db:Session=Depends(get_db)):
+@limiter.limit("5/minute")
+def register(request: Request, data:RegisterIn, db:Session=Depends(get_db)):
     if db.query(User).filter(User.email==data.email).first(): raise HTTPException(400,"Email already registered")
     u=User(email=data.email,password_hash=hash_password(data.password),full_name=data.full_name)
     db.add(u); db.commit(); db.refresh(u)
     return {"message":"Registration successful","user_id":u.id}
 
 @app.post("/auth/login")
-def login(data:LoginIn, db:Session=Depends(get_db)):
+@limiter.limit("5/minute")
+def login(request: Request, data:LoginIn, db:Session=Depends(get_db)):
     u=db.query(User).filter(User.email==data.email).first()
     if not u or not verify_password(data.password,u.password_hash): raise HTTPException(401,"Invalid email or password")
     if u.role!=data.role: raise HTTPException(401,"Selected role does not match account")
@@ -137,42 +173,28 @@ def list_products(
     if max_price is not None:
         q = q.filter(Product.price <= max_price)
 
-    items = q.all()
+    total = q.count()
 
     if sort == "price_asc":
-        items.sort(key=lambda x: x.price)
-
+        q = q.order_by(Product.price.asc(), Product.id.asc())
     elif sort == "price_desc":
-        items.sort(key=lambda x: x.price, reverse=True)
-
+        q = q.order_by(Product.price.desc(), Product.id.desc())
     elif sort == "rating":
-        items.sort(key=lambda x: x.rating, reverse=True)
-
+        q = q.order_by(Product.rating.desc(), Product.id.desc())
     elif sort == "newest":
-        items.sort(key=lambda x: x.id, reverse=True)
-
+        q = q.order_by(Product.id.desc())
     elif sort == "discount":
-        items.sort(
-            key=lambda x: (
-                (x.mrp - x.price) / x.mrp
-                if x.mrp
-                else 0
-            ),
-            reverse=True,
-        )
+        discount = (Product.mrp - Product.price) / Product.mrp
+        q = q.order_by(discount.desc().nullslast(), Product.id.desc())
+    else:
+        q = q.order_by(Product.id.asc())
 
-    total = len(items)
-
-    start = (page - 1) * page_size
-    end = start + page_size
-
-    paginated_items = items[start:end]
+    offset = (page - 1) * page_size
+    paginated_items = q.offset(offset).limit(page_size).all()
+    end = offset + len(paginated_items)
 
     return {
-        "items": [
-            serialize_product(x)
-            for x in paginated_items
-        ],
+        "items": [serialize_product(x) for x in paginated_items],
         "total": total,
         "page": page,
         "page_size": page_size,
@@ -230,8 +252,8 @@ def remove_cart(product_id:int,user:User=Depends(current_user),db:Session=Depend
 @app.get("/offers")
 def offers():
     return [
-        {"code":"WELCOME10","title":"Welcome Offer","description":"10% off up to â‚¹500","type":"PERCENT","value":10,"min_order":999},
-        {"code":"SHOP500","title":"Flat â‚¹500 Off","description":"â‚¹500 off on orders above â‚¹7,999","type":"FLAT","value":500,"min_order":7999},
+        {"code":"WELCOME10","title":"Welcome Offer","description":"10% off up to Ã¢â€šÂ¹500","type":"PERCENT","value":10,"min_order":999},
+        {"code":"SHOP500","title":"Flat Ã¢â€šÂ¹500 Off","description":"Ã¢â€šÂ¹500 off on orders above Ã¢â€šÂ¹7,999","type":"FLAT","value":500,"min_order":7999},
         {"code":"FREESHIP","title":"Free Delivery","description":"Free delivery on eligible orders","type":"SHIPPING","value":0,"min_order":499}
     ]
 
@@ -314,13 +336,18 @@ async def admin_status(order_id:int,data:StatusIn,user:User=Depends(admin_user),
 @app.websocket("/ws/admin")
 async def admin_ws(websocket:WebSocket):
     token=websocket.query_params.get("token","")
-    db=next(get_db())
-    user=websocket_user(token,db)
+    db = next(get_db())
+    try:
+        user = websocket_user(token, db)
+        if not user or user.role != "admin":
+            await websocket.close(code=1008)
+            return
 
-    if not user or user.role!="admin":
-        await websocket.close(code=1008)
+        # Preserve required values, then release the DB connection.
+        admin_id = user.id
+        admin_name = user.full_name or user.email
+    finally:
         db.close()
-        return
 
     await websocket.accept()
     admin_connections.add(websocket)
@@ -343,9 +370,9 @@ async def admin_ws(websocket:WebSocket):
 
                 payload={
                     "event":"chat_message",
-                    "sender_id":user.id,
+                    "sender_id":admin_id,
                     "sender_role":"admin",
-                    "sender_name":user.full_name or user.email,
+                    "sender_name":admin_name,
                     "target_user_id":int(target_user_id),
                     "message":text,
                 }
@@ -362,16 +389,21 @@ async def admin_ws(websocket:WebSocket):
 @app.websocket("/ws/orders")
 async def customer_ws(websocket:WebSocket):
     token=websocket.query_params.get("token","")
-    db=next(get_db())
-    user=websocket_user(token,db)
+    db = next(get_db())
+    try:
+        user = websocket_user(token, db)
+        if not user or user.role != "user":
+            await websocket.close(code=1008)
+            return
 
-    if not user or user.role!="user":
-        await websocket.close(code=1008)
+        # Copy required values before releasing the database session.
+        user_id = user.id
+        user_name = user.full_name or user.email
+    finally:
         db.close()
-        return
 
     await websocket.accept()
-    customer_connections.setdefault(user.id,set()).add(websocket)
+    customer_connections.setdefault(user_id, set()).add(websocket)
 
     try:
         while True:
@@ -390,9 +422,9 @@ async def customer_ws(websocket:WebSocket):
 
                 payload={
                     "event":"chat_message",
-                    "sender_id":user.id,
+                    "sender_id":user_id,
                     "sender_role":"user",
-                    "sender_name":user.full_name or user.email,
+                    "sender_name":user_name,
                     "target_role":"admin",
                     "message":text,
                 }
@@ -400,12 +432,12 @@ async def customer_ws(websocket:WebSocket):
                 await broadcast_admin(payload)
 
     except WebSocketDisconnect:
-        customer_connections.get(user.id,set()).discard(websocket)
+        customer_connections.get(user_id,set()).discard(websocket)
     finally:
-        customer_connections.get(user.id,set()).discard(websocket)
+        customer_connections.get(user_id,set()).discard(websocket)
 
-        if not customer_connections.get(user.id):
-            customer_connections.pop(user.id,None)
+        if not customer_connections.get(user_id):
+            customer_connections.pop(user_id,None)
 
         db.close()
 
@@ -510,6 +542,186 @@ def delete_product(product_id:int,user:User=Depends(admin_user),db:Session=Depen
     p=db.get(Product,product_id)
     if not p: raise HTTPException(404,"Product not found")
     p.is_active=False; db.commit(); return {"message":"Product archived"}
+
+
+def _invoice_pdf(order: Order, db: Session) -> bytes:
+    """Render an order invoice from persisted order snapshots without inventing tax fields."""
+    items = db.query(OrderItem).filter(OrderItem.order_id == order.id).order_by(OrderItem.id.asc()).all()
+    address = {}
+    try:
+        address = json.loads(order.address_snapshot or "{}")
+    except (TypeError, json.JSONDecodeError):
+        address = {}
+
+    customer = db.get(User, order.user_id)
+    subtotal = round(sum(float(item.unit_price) * int(item.quantity) for item in items), 2)
+    discount = 500 if subtotal >= 7999 else (round(subtotal * 0.10, 2) if subtotal >= 999 else 0)
+    shipping = 0 if subtotal >= 499 else 49
+    total = round(float(order.total or 0), 2)
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        rightMargin=18 * mm, leftMargin=18 * mm,
+        topMargin=17 * mm, bottomMargin=18 * mm,
+        title=f"zetA Invoice INV-{order.id:06d}",
+        author="zetA",
+    )
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(
+        name="ZetaBrand", parent=styles["Title"], fontName="Helvetica-Bold",
+        fontSize=25, leading=29, textColor=colors.HexColor("#635bff"), alignment=0,
+        spaceAfter=2,
+    ))
+    styles.add(ParagraphStyle(
+        name="ZetaSmall", parent=styles["BodyText"], fontSize=8.5, leading=12,
+        textColor=colors.HexColor("#64748b"),
+    ))
+    styles.add(ParagraphStyle(
+        name="ZetaRight", parent=styles["BodyText"], alignment=TA_RIGHT,
+        fontSize=9, leading=13,
+    ))
+    styles.add(ParagraphStyle(
+        name="ZetaSection", parent=styles["Heading2"], fontSize=11,
+        leading=14, textColor=colors.HexColor("#1e293b"), spaceBefore=10, spaceAfter=5,
+    ))
+
+    def safe(value):
+        text = str(value or "")
+        return (text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                .replace("\n", "<br/>"))
+
+    story = [
+        Paragraph("zetA", styles["ZetaBrand"]),
+        Paragraph("THOUGHTFUL SHOPPING", styles["ZetaSmall"]),
+        Spacer(1, 7 * mm),
+    ]
+    meta = [
+        [Paragraph("<b>INVOICE</b>", styles["Heading1"]),
+         Paragraph(f"<b>Invoice no.</b> INV-{order.id:06d}<br/><b>Order no.</b> #{order.id}<br/><b>Issued</b> {order.created_at.strftime('%d %b %Y') if order.created_at else 'â€”'}", styles["ZetaRight"])],
+        [Paragraph("Order summary", styles["ZetaSection"]),
+         Paragraph(f"<b>Order status:</b> {safe(order.status)}<br/><b>Payment method:</b> {safe(order.payment_method)}<br/><b>Payment status:</b> {safe(order.payment_status)}", styles["ZetaRight"])]
+    ]
+    meta_table = Table(meta, colWidths=[83*mm, 85*mm])
+    meta_table.setStyle(TableStyle([
+        ("VALIGN", (0,0), (-1,-1), "TOP"),
+        ("ALIGN", (1,0), (1,-1), "RIGHT"),
+        ("LINEBELOW", (0,0), (-1,0), 0.8, colors.HexColor("#e2e8f0")),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 8),
+        ("LEFTPADDING", (0,0), (-1,-1), 0),
+        ("RIGHTPADDING", (0,0), (-1,-1), 0),
+    ]))
+    story.append(meta_table)
+    story.append(Spacer(1, 5 * mm))
+    story.append(Paragraph("BILL TO", styles["ZetaSection"]))
+    customer_name = address.get("full_name") or (customer.full_name if customer else "")
+    customer_email = customer.email if customer else ""
+    address_lines = [
+        customer_name, customer_email, address.get("phone"),
+        address.get("address_line"),
+        ", ".join(x for x in [address.get("city"), address.get("state")] if x),
+        address.get("pincode"),
+    ]
+    bill_to = "<br/>".join(safe(line) for line in address_lines if line)
+    story.append(Paragraph(bill_to or "Customer details not available in order snapshot.", styles["BodyText"]))
+    story.append(Spacer(1, 7 * mm))
+
+    data = [[
+        Paragraph("<b>Item</b>", styles["BodyText"]),
+        Paragraph("<b>Qty</b>", styles["BodyText"]),
+        Paragraph("<b>Unit price</b>", styles["BodyText"]),
+        Paragraph("<b>Line total</b>", styles["BodyText"]),
+    ]]
+    for item in items:
+        unit = float(item.unit_price)
+        qty = int(item.quantity)
+        data.append([
+            Paragraph(safe(item.product_name), styles["BodyText"]),
+            str(qty),
+            f"INR {unit:,.2f}",
+            f"INR {unit * qty:,.2f}",
+        ])
+    item_table = Table(data, colWidths=[88*mm, 16*mm, 31*mm, 33*mm], repeatRows=1)
+    item_table.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#f1f5f9")),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.HexColor("#334155")),
+        ("GRID", (0,0), (-1,-1), 0.4, colors.HexColor("#e2e8f0")),
+        ("VALIGN", (0,0), (-1,-1), "TOP"),
+        ("ALIGN", (1,1), (-1,-1), "RIGHT"),
+        ("LEFTPADDING", (0,0), (-1,-1), 7),
+        ("RIGHTPADDING", (0,0), (-1,-1), 7),
+        ("TOPPADDING", (0,0), (-1,-1), 8),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 8),
+    ]))
+    story.extend([item_table, Spacer(1, 5 * mm)])
+
+    totals = [
+        ["Subtotal", f"INR {subtotal:,.2f}"],
+        ["Discount", f"- INR {discount:,.2f}"],
+        ["Shipping", f"INR {shipping:,.2f}"],
+        ["Order total", f"INR {total:,.2f}"],
+    ]
+    totals_table = Table(totals, colWidths=[132*mm, 36*mm], hAlign="RIGHT")
+    totals_table.setStyle(TableStyle([
+        ("ALIGN", (1,0), (1,-1), "RIGHT"),
+        ("FONTNAME", (0,0), (-1,-2), "Helvetica"),
+        ("FONTNAME", (0,-1), (-1,-1), "Helvetica-Bold"),
+        ("FONTSIZE", (0,0), (-1,-1), 9),
+        ("TEXTCOLOR", (0,-1), (-1,-1), colors.HexColor("#635bff")),
+        ("LINEABOVE", (0,-1), (-1,-1), 0.8, colors.HexColor("#635bff")),
+        ("TOPPADDING", (0,0), (-1,-1), 6),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 6),
+    ]))
+    story.extend([totals_table, Spacer(1, 9 * mm)])
+    story.append(Paragraph(
+        "This invoice reflects the order information recorded by zetA. "
+        "No GST or tax amount is shown because tax registration and tax breakdown "
+        "are not present in the supplied order records.",
+        styles["ZetaSmall"],
+    ))
+    story.append(Spacer(1, 3 * mm))
+    story.append(Paragraph("Thank you for shopping with zetA.", styles["ZetaSmall"]))
+    doc.build(story)
+    return buffer.getvalue()
+
+
+@app.get("/orders/{order_id}/invoice")
+def customer_order_invoice(
+    order_id: int,
+    user: User = Depends(customer_user),
+    db: Session = Depends(get_db),
+):
+    order = db.get(Order, order_id)
+    if not order or order.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Order not found")
+    from fastapi.responses import Response
+    pdf = _invoice_pdf(order, db)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="zetA_invoice_{order.id:06d}.pdf"',
+                 "Cache-Control": "private, no-store"},
+    )
+
+
+@app.get("/admin/orders/{order_id}/invoice")
+def admin_order_invoice(
+    order_id: int,
+    user: User = Depends(admin_user),
+    db: Session = Depends(get_db),
+):
+    order = db.get(Order, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    from fastapi.responses import Response
+    pdf = _invoice_pdf(order, db)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="zetA_invoice_{order.id:06d}.pdf"',
+                 "Cache-Control": "private, no-store"},
+    )
+
 
 def serialize_product(p):
     return {"id":p.id,"name":p.name,"description":p.description,"category":p.category,"subcategory":p.subcategory,"price":p.price,"mrp":p.mrp,"discount_percent":round((p.mrp-p.price)*100/p.mrp) if p.mrp else 0,"stock":p.stock,"image_url":p.image_url,"badge":p.badge,"offer_text":p.offer_text,"rating":p.rating,"reviews":p.reviews}

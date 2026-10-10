@@ -54,7 +54,7 @@ const heroImages = [
 
 export default function Dashboard() {
   return (
-    <main className="space-y-10 pb-16">
+    <main className="zeta-page zeta-dashboard zeta-page space-y-10 pb-16">
       {/* HERO */}
       <section className="relative overflow-hidden rounded-[2rem] bg-[#080b1f] px-6 py-10 text-white shadow-2xl shadow-indigo-500/10 sm:px-10 lg:px-14 lg:py-14">
         <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-violet-600/30 blur-3xl" />
@@ -65,7 +65,7 @@ export default function Dashboard() {
           <div>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-indigo-200 backdrop-blur">
               <Sparkles size={14} />
-              ShopFlow 2026
+              zetA 2026
             </div>
 
             <h1 className="max-w-2xl text-4xl font-black leading-[0.98] tracking-[-0.04em] sm:text-5xl lg:text-7xl">
@@ -77,7 +77,7 @@ export default function Dashboard() {
 
             <p className="mt-6 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">
               Discover 120+ products across electronics, fashion, home,
-              beauty, fitness and more ? all in one intelligent shopping
+              beauty, fitness and more â€” all in one intelligent shopping
               experience.
             </p>
 
@@ -276,4 +276,3 @@ export default function Dashboard() {
     </main>
   );
 }
-

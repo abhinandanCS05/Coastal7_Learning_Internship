@@ -64,7 +64,70 @@ export default function Admin() {
   const [editorImage, setEditorImage] = useState(null);
   const [editorImagePreview, setEditorImagePreview] = useState("");
   const [uploading, setUploading] = useState(null);
+  const [csvFile, setCsvFile] = useState(null);
+  const [csvImport, setCsvImport] = useState(null);
+  const [csvImportError, setCsvImportError] = useState("");
+  const [csvImporting, setCsvImporting] = useState(false);
+  const csvInputRef = useRef(null);
   const ws = useRef(null);
+
+  const handleCsvImport = async () => {
+    if (!csvFile) {
+      setCsvImportError("Choose a CSV file first.");
+      return;
+    }
+
+    if (!csvFile.name.toLowerCase().endsWith(".csv")) {
+      setCsvImportError("Only .csv files are supported.");
+      return;
+    }
+
+    if (csvFile.size > 10 * 1024 * 1024) {
+      setCsvImportError("The CSV file must be 10 MB or smaller.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", csvFile);
+
+    setCsvImportError("");
+    setCsvImporting(true);
+    setCsvImport(null);
+
+    try {
+      const response = await api.post(
+        "/day18/admin/products/import",
+        formData
+      );
+
+      if (!response.data?.task_id) {
+        throw new Error("The server did not return a task ID.");
+      }
+
+      setCsvImport({
+        ...response.data,
+        status: response.data.status || "QUEUED",
+        ready: false,
+        progress: {
+          percent: 0,
+          message: response.data.message || "Import queued.",
+        },
+      });
+
+      setCsvFile(null);
+      if (csvInputRef.current) {
+        csvInputRef.current.value = "";
+      }
+    } catch (e) {
+      setCsvImportError(
+        e.response?.data?.detail ||
+          e.message ||
+          "Unable to start the CSV import."
+      );
+    } finally {
+      setCsvImporting(false);
+    }
+  };
 
   const load = async () => {
     try {
@@ -86,7 +149,7 @@ export default function Admin() {
   useEffect(() => {
     load();
 
-    const token = localStorage.getItem("shopflow_token");
+    const token = localStorage.getItem("zetA_token");
 
     if (token) {
       const proto = location.protocol === "https:" ? "wss" : "ws";
@@ -117,6 +180,65 @@ export default function Admin() {
 
     return () => ws.current?.close();
   }, []);
+
+  useEffect(() => {
+    const taskId = csvImport?.task_id;
+
+    if (!taskId || csvImport.ready) {
+      return;
+    }
+
+    let cancelled = false;
+    let timerId;
+
+    const checkStatus = async () => {
+      try {
+        const response = await api.get(
+          `/day18/tasks/${encodeURIComponent(taskId)}`
+        );
+        const data = response.data;
+
+        if (cancelled) return;
+
+        setCsvImport((current) =>
+          current?.task_id === taskId
+            ? { ...current, ...data, rows: current.rows }
+            : current
+        );
+
+        if (!data.ready) {
+          timerId = window.setTimeout(checkStatus, 1000);
+        } else if (data.status === "SUCCESS") {
+          await load();
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setCsvImport((current) =>
+            current?.task_id === taskId
+              ? {
+                  ...current,
+                  status: "ERROR",
+                  ready: true,
+                  error:
+                    e.response?.data?.detail ||
+                    e.message ||
+                    "Unable to retrieve import status.",
+                }
+              : current
+          );
+        }
+      }
+    };
+
+    timerId = window.setTimeout(checkStatus, 500);
+
+    return () => {
+      cancelled = true;
+      if (timerId !== undefined) {
+        window.clearTimeout(timerId);
+      }
+    };
+  }, [csvImport?.task_id, csvImport?.ready]);
 
   const updateOrderStatus = async (order, nextStatus) => {
     try {
@@ -282,7 +404,7 @@ export default function Admin() {
       };
 
       console.log(
-        "SHOPFLOW: Saving product",
+        "zetA: Saving product",
         editing.id,
         payload
       );
@@ -298,7 +420,7 @@ export default function Admin() {
         savedProduct = response.data;
 
         console.log(
-          "SHOPFLOW: Product created",
+          "zetA: Product created",
           savedProduct
         );
 
@@ -306,7 +428,7 @@ export default function Admin() {
           await uploadEditorImage(savedProduct.id);
 
           console.log(
-            "SHOPFLOW: New product image uploaded"
+            "zetA: New product image uploaded"
           );
         }
       } else {
@@ -318,7 +440,7 @@ export default function Admin() {
         savedProduct = response.data;
 
         console.log(
-          "SHOPFLOW: Product updated successfully",
+          "zetA: Product updated successfully",
           savedProduct
         );
 
@@ -327,7 +449,7 @@ export default function Admin() {
             await uploadEditorImage(editing.id);
 
           console.log(
-            "SHOPFLOW: Replacement image uploaded successfully",
+            "zetA: Replacement image uploaded successfully",
             imageResponse
           );
         }
@@ -349,7 +471,7 @@ export default function Admin() {
 
     } catch (e) {
       console.error(
-        "SHOPFLOW PRODUCT SAVE ERROR:",
+        "zetA PRODUCT SAVE ERROR:",
         e.response?.data || e
       );
 
@@ -434,7 +556,7 @@ export default function Admin() {
   });
 
   return (
-    <main className="space-y-8 py-8">
+    <main className="zeta-page zeta-admin zeta-page space-y-8 py-8">
       {/* HEADER */}
       <section className="rounded-3xl bg-gradient-to-br from-[#080b1f] via-indigo-950 to-violet-950 p-7 text-white shadow-2xl">
         <div className="flex flex-wrap items-end justify-between gap-5">
@@ -444,7 +566,7 @@ export default function Admin() {
             </p>
 
             <h1 className="mt-2 text-4xl font-black tracking-tight">
-              ShopFlow Admin Command Center
+              zetA Admin Command Center
             </h1>
 
             <p className="mt-2 max-w-2xl text-sm text-slate-300">
@@ -678,6 +800,173 @@ export default function Admin() {
                 </div>
               </article>
             ))}
+          </div>
+        )}
+      </section>
+
+      {/* BULK CSV PRODUCT IMPORT */}
+      <section className="rounded-2xl border border-dashed border-indigo-300 bg-white p-5 shadow-sm dark:border-indigo-800 dark:bg-slate-900">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <Upload size={21} className="text-indigo-600" />
+              <h2 className="text-xl font-black text-slate-900 dark:text-white">
+                Bulk Product Import
+              </h2>
+            </div>
+            <p className="mt-2 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
+              Upload a CSV catalogue and process it in the background with
+              Celery. Maximum file size: 10 MB.
+            </p>
+          </div>
+
+          <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+            Background processing
+          </span>
+        </div>
+
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <input
+            ref={csvInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            disabled={csvImporting || Boolean(csvImport && !csvImport.ready)}
+            onChange={(event) => {
+              const file = event.target.files?.[0] || null;
+              setCsvImportError("");
+
+              if (file && !file.name.toLowerCase().endsWith(".csv")) {
+                setCsvFile(null);
+                setCsvImportError("Please select a .csv file.");
+                event.target.value = "";
+                return;
+              }
+
+              if (file && file.size > 10 * 1024 * 1024) {
+                setCsvFile(null);
+                setCsvImportError("The CSV file must be 10 MB or smaller.");
+                event.target.value = "";
+                return;
+              }
+
+              setCsvFile(file);
+            }}
+            className="block w-full min-w-0 flex-1 rounded-xl border border-slate-200 p-3 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:font-semibold file:text-indigo-700 dark:border-slate-700 dark:bg-slate-950"
+          />
+
+          <button
+            type="button"
+            onClick={handleCsvImport}
+            disabled={
+              !csvFile ||
+              csvImporting ||
+              Boolean(csvImport && !csvImport.ready)
+            }
+            className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Upload size={17} />
+            {csvImporting
+              ? "Uploading..."
+              : csvImport && !csvImport.ready
+                ? "Import in progress..."
+                : "Import CSV"}
+          </button>
+        </div>
+
+        {csvFile && (
+          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+            Selected: {csvFile.name} (
+            {(csvFile.size / 1024).toFixed(1)} KB)
+          </p>
+        )}
+
+        {csvImportError && (
+          <div
+            role="alert"
+            className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300"
+          >
+            {csvImportError}
+          </div>
+        )}
+
+        {csvImport && (
+          <div className="mt-5 space-y-3 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                Import status: {csvImport.status}
+              </span>
+              <span className="text-sm font-bold text-indigo-600">
+                {csvImport.ready && csvImport.status === "SUCCESS"
+                  ? 100
+                  : Math.max(
+                      0,
+                      Math.min(100, csvImport.progress?.percent ?? 0)
+                    )}%
+              </span>
+            </div>
+
+            <div
+              className="h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+              role="progressbar"
+              aria-label="CSV import progress"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={
+                csvImport.ready && csvImport.status === "SUCCESS"
+                  ? 100
+                  : Math.max(
+                      0,
+                      Math.min(100, csvImport.progress?.percent ?? 0)
+                    )
+              }
+            >
+              <div
+                className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+                style={{
+                  width: `${
+                    csvImport.ready && csvImport.status === "SUCCESS"
+                      ? 100
+                      : Math.max(
+                          0,
+                          Math.min(100, csvImport.progress?.percent ?? 0)
+                        )
+                  }%`,
+                }}
+              />
+            </div>
+
+            {csvImport.progress?.message && (
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                {csvImport.progress.message}
+              </p>
+            )}
+
+            {csvImport.status === "SUCCESS" && csvImport.ready && (
+              <div
+                role="status"
+                className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+              >
+                <strong>Import completed successfully.</strong>
+                {" "}The product catalogue has been refreshed.
+              </div>
+            )}
+
+            {csvImport.ready &&
+              csvImport.status !== "SUCCESS" && (
+                <div
+                  role="alert"
+                  className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300"
+                >
+                  <strong>Import did not complete successfully.</strong>
+                  {csvImport.error && (
+                    <p className="mt-1 break-words">{csvImport.error}</p>
+                  )}
+                </div>
+              )}
+
+            <p className="break-all text-xs text-slate-400">
+              Task ID: {csvImport.task_id}
+            </p>
           </div>
         )}
       </section>
@@ -1030,12 +1319,12 @@ export default function Admin() {
                   className="mt-4 flex min-h-48 cursor-pointer items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-4 transition hover:border-indigo-500 hover:bg-indigo-50/30 dark:border-slate-700 dark:bg-slate-950"
                   onClick={() =>
                     document
-                      .getElementById("shopflow-editor-image")
+                      .getElementById("zetA-editor-image")
                       ?.click()
                   }
                 >
                   <input
-                    id="shopflow-editor-image"
+                    id="zetA-editor-image"
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     className="hidden"
@@ -1340,7 +1629,3 @@ export default function Admin() {
     </main>
   );
 }
-
-
-
-

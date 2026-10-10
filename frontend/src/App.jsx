@@ -1,6 +1,6 @@
 import BackgroundJobs from "./pages/BackgroundJobs";
 import { lazy, Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -23,7 +23,7 @@ function PageLoader() {
   return (
     <div className="flex min-h-[50vh] items-center justify-center">
       <div className="text-sm font-medium text-slate-500">
-        Loading ShopFlow...
+        Loading zetA...
       </div>
     </div>
   );
@@ -33,9 +33,6 @@ export default function App() {
   return (
     <AuthProvider>
       <RealtimeNotifications />
-      <NotificationPanel />
-      <SupportChat />
-
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/login" element={<Login />} />

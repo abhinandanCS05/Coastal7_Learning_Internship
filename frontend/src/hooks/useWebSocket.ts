@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type WebSocketStatus =
   | "idle"
@@ -49,7 +49,7 @@ export function useWebSocket(
   const connect = useCallback(() => {
     if (!enabled || stoppedRef.current) return;
 
-    const token = localStorage.getItem("shopflow_token");
+    const token = localStorage.getItem("zetA_token");
 
     if (!token) {
       setStatus("disconnected");

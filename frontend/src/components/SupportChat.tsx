@@ -10,14 +10,14 @@ type ChatMessage = {
   sender_role?: string;
 };
 
-export default function SupportChat() {
+export default function SupportChat({ placement = "floating" }: { placement?: "header" | "floating" } = {}) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const auth = useAuth() as { user?: { role?: string; full_name?: string } } | null;
   const user = auth?.user;
-  const token = localStorage.getItem("shopflow_token");
+  const token = localStorage.getItem("zetA_token");
   const isAdmin = user?.role === "admin";
 
   const handleMessage = useCallback((data: unknown) => {
@@ -113,19 +113,19 @@ export default function SupportChat() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-indigo-700"
+          className={placement === "header" ? "relative inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-indigo-200 bg-indigo-600 px-3 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 sm:px-4" : "fixed bottom-6 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-indigo-700 sm:bottom-6 sm:right-6"}
         >
           <MessageCircle size={18} />
-          {isAdmin ? "Support Inbox" : "Support"}
+          {isAdmin ? "zetA Support" : "Support"}
         </button>
       )}
 
       {open && (
-        <div className="fixed bottom-5 right-5 z-50 flex h-[480px] w-[360px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+        <div className={placement === "header" ? "fixed right-4 top-20 z-[100] flex h-[min(520px,calc(100dvh-6rem))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900 sm:right-6" : "fixed bottom-20 right-4 z-[100] flex h-[min(480px,calc(100vh-7rem))] w-[min(360px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900 sm:bottom-24 sm:right-6"}>
           <div className="flex items-center justify-between bg-indigo-600 px-4 py-3 text-white">
             <div>
               <div className="font-semibold">
-                {isAdmin ? "Customer Support" : "ShopFlow Support"}
+                {isAdmin ? "Customer Support" : "zetA Support"}
               </div>
               <div className="text-xs opacity-80">
                 {status === "connected"

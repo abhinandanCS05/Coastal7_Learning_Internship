@@ -1,4 +1,4 @@
-﻿import { Bell, CheckCheck, X } from "lucide-react";
+import { Bell, CheckCheck, X } from "lucide-react";
 import { useState } from "react";
 import { useNotificationStore } from "../store/notificationStore";
 
@@ -36,7 +36,7 @@ export default function NotificationPanel() {
             <div>
               <h3 className="font-bold">Notifications</h3>
               <p className="text-xs text-slate-500">
-                Real-time ShopFlow updates
+                Real-time zetA updates
               </p>
             </div>
 

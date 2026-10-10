@@ -26,6 +26,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { useCartStore } from "../store/cartStore";
+import NotificationPanel from "./NotificationPanel";
+import SupportChat from "./SupportChat";
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -36,7 +38,7 @@ export default function Layout() {
   const isAdminRoute = location.pathname.startsWith("/app/admin") || location.pathname.startsWith("/app/background-jobs");
 
   const [dark, setDark] = useState(
-    localStorage.getItem("shopflow_theme") === "dark"
+    localStorage.getItem("zetA_theme") === "dark"
   );
 
   const [open, setOpen] = useState(false);
@@ -81,7 +83,7 @@ export default function Layout() {
     );
 
     localStorage.setItem(
-      "shopflow_theme",
+      "zetA_theme",
       dark ? "dark" : "light"
     );
   }, [dark]);
@@ -142,7 +144,7 @@ export default function Layout() {
 
   if (isAdmin) {
     return (
-      <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+      <div className="zetA-app min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
         <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
 
@@ -152,10 +154,7 @@ export default function Layout() {
               to="/app/admin"
               className="shrink-0 text-2xl font-black tracking-tight text-indigo-600"
             >
-              shop
-              <span className="text-slate-900 dark:text-white">
-                flow
-              </span>
+              <span className="inline-flex items-center gap-0.5"><span className="font-black tracking-[-0.07em] text-slate-950 dark:text-white">zet</span><span className="rounded-md bg-lime-300 px-1 text-slate-950">A</span></span>
             </Link>
 
             <div className="hidden h-9 w-px bg-slate-200 dark:bg-slate-800 md:block" />
@@ -178,6 +177,8 @@ export default function Layout() {
             </div>
 
             <div className="ml-auto flex items-center gap-2">
+              <NotificationPanel />
+              <SupportChat placement="header" />
 
               <button
                 title="Toggle theme"
@@ -195,7 +196,7 @@ export default function Layout() {
                 <User size={17} />
 
                 <span className="max-w-36 truncate text-sm font-semibold">
-                  {user?.full_name || user?.email}
+                  {"zetA Admin"}
                 </span>
               </div>
 
@@ -233,7 +234,7 @@ export default function Layout() {
         </main>
 
         <footer className="mt-16 border-t border-slate-200 py-8 text-center text-sm text-slate-500 dark:border-slate-800">
-          ShopFlow Admin Console · Secure Operations
+          zetA Admin Console · Secure Operations
         </footer>
 
       </div>
@@ -250,7 +251,7 @@ export default function Layout() {
    */
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <div className="zetA-app min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
       <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
 
@@ -267,10 +268,7 @@ export default function Layout() {
             to="/app"
             className="shrink-0 text-2xl font-black tracking-tight text-indigo-600"
           >
-            shop
-            <span className="text-slate-900 dark:text-white">
-              flow
-            </span>
+            <span className="inline-flex items-center gap-0.5"><span className="font-black tracking-[-0.07em] text-slate-950 dark:text-white">zet</span><span className="rounded-md bg-lime-300 px-1 text-slate-950">A</span></span>
           </Link>
 
           <form
@@ -294,6 +292,8 @@ export default function Layout() {
           </form>
 
           <nav className="ml-auto hidden items-center gap-1 md:flex">
+            <NotificationPanel />
+            <SupportChat placement="header" />
 
             <Link
               title="Wishlist"
@@ -370,7 +370,7 @@ export default function Layout() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search ShopFlow..."
+              placeholder="Search zetA..."
               className="w-full bg-transparent px-2 outline-none"
             />
 
@@ -427,7 +427,7 @@ export default function Layout() {
       </main>
 
       <footer className="mt-16 border-t border-slate-200 py-8 text-center text-sm text-slate-500 dark:border-slate-800">
-        © 2026 ShopFlow · Smart shopping, simple checkout.
+        © 2026 zetA · Smart shopping, simple checkout.
       </footer>
 
     </div>

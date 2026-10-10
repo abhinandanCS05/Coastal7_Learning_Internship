@@ -168,15 +168,15 @@ export default function Cart() {
 
   if (cartQuery.isLoading) {
     return (
-      <main className="py-20 text-center">
-        Loading cart�
+      <main className="zeta-page zeta-cart py-20 text-center">
+        Loading cartï¿½
       </main>
     );
   }
 
   if (cartQuery.isError) {
     return (
-      <main className="py-20 text-center">
+      <main className="zeta-page zeta-cart py-20 text-center">
         <p className="text-red-600">
           {cartQuery.error.response?.data?.detail ||
             "Unable to load cart."}
@@ -200,14 +200,14 @@ export default function Cart() {
 
   if (!c.items.length) {
     return (
-      <main className="py-20 text-center">
+      <main className="zeta-page zeta-cart py-20 text-center">
         <ShoppingBag
           className="mx-auto text-slate-300"
           size={54}
         />
 
         <h1 className="mt-4 text-2xl font-bold">
-          Your cart is empty
+          Your cart is waiting for something good
         </h1>
 
         <Link
@@ -235,7 +235,7 @@ export default function Cart() {
   );
 
   return (
-    <main className="py-8">
+    <main className="zeta-page zeta-cart py-8">
       <h1 className="text-3xl font-black">
         Shopping Cart
       </h1>

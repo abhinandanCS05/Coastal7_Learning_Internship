@@ -1,198 +1,58 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Eye,
-  EyeOff,
-  ShieldCheck,
-  ShoppingBag,
-} from "lucide-react";
+import { Eye, EyeOff, ShieldCheck, ShoppingBag, Sparkles, ArrowRight } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
-  const [email, setEmail] = useState("demo@shopflow.com");
-  const [password, setPassword] = useState("Demo@123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
   const [show, setShow] = useState(false);
   const [err, setErr] = useState("");
-
+  const [busy, setBusy] = useState(false);
   const { login } = useAuth();
   const nav = useNavigate();
 
   const submit = async (e) => {
-    e.preventDefault();
-    setErr("");
-
+    e.preventDefault(); setErr(""); setBusy(true);
     try {
-      const response = await api.post("/auth/login", {
-        email,
-        password,
-        role,
-      });
-
-      login(response.data);
-
-      if (response.data.role === "admin") {
-        nav("/app/admin", { replace: true });
-      } else {
-        nav("/app", { replace: true });
-      }
+      const { data } = await api.post("/auth/login", { email: email.trim(), password, role });
+      login(data); nav(data.role === "admin" ? "/app/admin" : "/app", { replace: true });
     } catch (error) {
-      setErr(
-        error.response?.data?.detail ||
-          "Unable to login"
-      );
-    }
+      setErr(error.response?.data?.detail || "Unable to sign in. Check your details and try again.");
+    } finally { setBusy(false); }
   };
 
-  return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="hidden bg-slate-950 p-12 text-white lg:flex lg:flex-col lg:justify-between">
-        <div className="text-3xl font-black text-indigo-400">
-          shop<span className="text-white">flow</span>
-        </div>
-
-        <div>
-          <ShoppingBag
-            size={48}
-            className="mb-6 text-indigo-400"
-          />
-
-          <h1 className="max-w-xl text-5xl font-bold leading-tight">
-            Everything you need.
-            <br />
-            One smart shopping flow.
-          </h1>
-
-          <p className="mt-6 max-w-lg text-slate-400">
-            A complete e-commerce experience with
-            discovery, offers, wishlist, secure checkout
-            and live order operations.
-          </p>
-        </div>
-
-        <p className="text-sm text-slate-500">
-          Day 10–17 Engineering Project
-        </p>
+  return <main className="zeta-auth">
+    <section className="zeta-auth-brand">
+      <Link to="/login" className="zeta-wordmark">zet<span>A</span></Link>
+      <div className="zeta-brand-copy">
+        <div className="zeta-eyebrow"><Sparkles size={14}/> YOUR NEXT FAVOURITE THING</div>
+        <h1>Good finds.<br/><span>Great feeling.</span></h1>
+        <p>A thoughtful shopping experience for the things that make everyday better.</p>
+        <div className="zeta-brand-perks"><span><ShoppingBag size={17}/> Curated discovery</span><span><ShieldCheck size={17}/> Secure account access</span></div>
       </div>
-
-      <div className="flex items-center justify-center p-6">
-        <form
-          onSubmit={submit}
-          className="w-full max-w-md"
-        >
-          <div className="mb-8">
-            <div className="text-2xl font-black text-indigo-600 lg:hidden">
-              shopflow
-            </div>
-
-            <h2 className="mt-5 text-3xl font-bold">
-              Welcome back
-            </h2>
-
-            <p className="mt-2 text-slate-500">
-              Sign in to continue to ShopFlow.
-            </p>
-          </div>
-
-          {err && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
-              {err}
-            </div>
-          )}
-
-          <label className="text-sm font-semibold">
-            Email
-
-            <input
-              value={email}
-              onChange={(e) =>
-                setEmail(e.target.value)
-              }
-              className="mt-1 mb-4 w-full rounded-xl border p-3 outline-none focus:border-indigo-500"
-            />
-          </label>
-
-          <label className="text-sm font-semibold">
-            Password
-
-            <div className="relative">
-              <input
-                type={show ? "text" : "password"}
-                value={password}
-                onChange={(e) =>
-                  setPassword(e.target.value)
-                }
-                className="mt-1 w-full rounded-xl border p-3 pr-11 outline-none focus:border-indigo-500"
-              />
-
-              <button
-                type="button"
-                onClick={() => setShow(!show)}
-                className="absolute right-3 top-4"
-              >
-                {show ? (
-                  <EyeOff size={18} />
-                ) : (
-                  <Eye size={18} />
-                )}
-              </button>
-            </div>
-          </label>
-
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setRole("user")}
-              className={`rounded-xl border p-3 text-sm ${
-                role === "user"
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                  : "border-slate-200"
-              }`}
-            >
-              Customer
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setRole("admin")}
-              className={`rounded-xl border p-3 text-sm ${
-                role === "admin"
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                  : "border-slate-200"
-              }`}
-            >
-              <ShieldCheck
-                className="mr-1 inline"
-                size={16}
-              />
-              Admin
-            </button>
-          </div>
-
-          <button
-            className="mt-5 w-full rounded-xl bg-indigo-600 py-3.5 font-semibold text-white hover:bg-indigo-700"
-          >
-            Sign In
-          </button>
-
-          <p className="mt-5 text-center text-sm text-slate-500">
-            New to ShopFlow?{" "}
-            <Link
-              to="/register"
-              className="font-semibold text-indigo-600"
-            >
-              Create account
-            </Link>
-          </p>
-
-          <p className="mt-6 rounded-xl bg-slate-50 p-3 text-xs text-slate-500">
-            Demo customer: demo@shopflow.com / Demo@123
-            <br />
-            Demo admin: admin@shopflow.com / Admin@123
-          </p>
-        </form>
-      </div>
-    </div>
-  );
+      <p className="zeta-brand-foot">A smarter way to shop, every day.</p>
+      <div className="zeta-glow one"/><div className="zeta-glow two"/>
+    </section>
+    <section className="zeta-auth-form-wrap"><form onSubmit={submit} className="zeta-auth-form">
+      <Link to="/login" className="zeta-wordmark zeta-mobile-logo">zet<span>A</span></Link>
+      <div className="zeta-form-kicker">WELCOME BACK</div><h2>Sign in to zetA</h2>
+      <p className="zeta-form-subtitle">Your next great find is just around the corner.</p>
+      {err && <div role="alert" className="zeta-error">{err}</div>}
+      <label className="zeta-field-label" htmlFor="zeta-email">Email address</label>
+      <input id="zeta-email" type="email" autoComplete="username" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" className="zeta-input"/>
+      <label className="zeta-field-label" htmlFor="zeta-password">Password</label>
+      <div className="zeta-password-wrap"><input id="zeta-password" type={show?"text":"password"} autoComplete="current-password" required value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password" className="zeta-input"/>
+        <button type="button" className="zeta-eye" aria-label={show?"Hide password":"Show password"} onClick={()=>setShow(!show)}>{show?<EyeOff size={18}/>:<Eye size={18}/>}</button></div>
+      <div className="zeta-role-label">Continue as</div><div className="zeta-role-picker">
+        <button type="button" aria-pressed={role==="user"} onClick={()=>setRole("user")} className={role==="user"?"selected":""}><ShoppingBag size={18}/><span><b>Customer</b><small>Shop and track orders</small></span></button>
+        <button type="button" aria-pressed={role==="admin"} onClick={()=>setRole("admin")} className={role==="admin"?"selected":""}><ShieldCheck size={18}/><span><b>Admin</b><small>Manage the store</small></span></button>
+      </div><p className="zeta-role-note">Your account's assigned role is verified securely when you sign in.</p>
+      <button disabled={busy} type="submit" className="zeta-submit">{busy?"Signing you in…":"Sign in securely"} {!busy&&<ArrowRight size={18}/>}</button>
+      <p className="zeta-signup">New to zetA? <Link to="/register">Create an account</Link></p>
+      <p className="zeta-legal">By continuing, you agree to use your account responsibly.</p>
+    </form></section>
+  </main>;
 }

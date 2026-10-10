@@ -59,7 +59,7 @@ export default function RealtimeNotifications() {
                 ? "Order updated"
                 : eventName === "chat_message"
                   ? "New support message"
-                  : "ShopFlow update",
+                  : "zetA update",
 
           message:
             typeof event.message === "string"
@@ -87,7 +87,7 @@ export default function RealtimeNotifications() {
   const wsPath = user?.role === "admin" ? "/ws/admin" : "/ws/orders";
 
   useWebSocket(wsPath, {
-    enabled: Boolean(localStorage.getItem("shopflow_token")) && Boolean(user),
+    enabled: Boolean(localStorage.getItem("zetA_token")) && Boolean(user),
     reconnect: true,
     maxRetries: 8,
     baseDelay: 1000,

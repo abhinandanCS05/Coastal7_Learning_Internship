@@ -1,11 +1,41 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { PackageCheck, RefreshCw } from 'lucide-react';
+import { PackageCheck, RefreshCw, FileText, Download } from 'lucide-react';
 import api from '../services/api';
 
 export default function Orders() {
   const queryClient = useQueryClient();
   const ws = useRef(null);
+
+  const [invoiceBusyId, setInvoiceBusyId] = useState(null);
+  const [invoiceError, setInvoiceError] = useState('');
+
+  async function downloadInvoice(orderId) {
+    if (invoiceBusyId !== null) return;
+    setInvoiceBusyId(orderId);
+    setInvoiceError('');
+    try {
+      const response = await api.get(`/orders/${orderId}/invoice`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `zetA_invoice_${String(orderId).padStart(6, '0')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (requestError) {
+      setInvoiceError(
+        requestError.response?.data?.detail ||
+        'Unable to download invoice. Please try again.'
+      );
+    } finally {
+      setInvoiceBusyId(null);
+    }
+  }
 
   const {
     data: orders = [],
@@ -25,7 +55,7 @@ export default function Orders() {
 
 
   useEffect(() => {
-    const token = localStorage.getItem('shopflow_token');
+    const token = localStorage.getItem('zetA_token');
 
     if (!token) {
       return undefined;
@@ -75,15 +105,15 @@ export default function Orders() {
 
   if (isLoading) {
     return (
-      <main className="py-20 text-center">
+      <main className="zeta-page zeta-orders zeta-page py-20 text-center">
         <RefreshCw className="mx-auto mb-3 animate-spin" size={28} />
-        <p className="text-slate-500">Loading your ordersÃ¢â‚¬Â¦</p>
+        <p className="text-slate-500">Loading your ordersÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦</p>
       </main>
     );
   }
 
   return (
-    <main className="py-8">
+    <main className="zeta-page zeta-orders zeta-page py-8">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-black">My Orders</h1>
@@ -133,7 +163,17 @@ export default function Orders() {
                 </p>
               </div>
 
-              <span
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => downloadInvoice(order.id)}
+                  disabled={invoiceBusyId !== null}
+                  className="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-white px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-50 disabled:opacity-50 dark:border-indigo-900 dark:bg-slate-900 dark:text-indigo-300"
+                >
+                  {invoiceBusyId === order.id ? <Download size={15} className="animate-bounce" /> : <FileText size={15} />}
+                  {invoiceBusyId === order.id ? 'Preparing…' : 'Download invoice'}
+                </button>
+                <span
                 className={`rounded-full px-3 py-1 text-xs font-bold ${
                   order.status === 'DELIVERED'
                     ? 'bg-green-100 text-green-700'
@@ -143,7 +183,8 @@ export default function Orders() {
                 }`}
               >
                 {order.status}
-              </span>
+                </span>
+              </div>
             </div>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -154,7 +195,7 @@ export default function Orders() {
                 >
                   <b>{item.name}</b>
                   <p>
-                    Qty {item.quantity} Ã‚Â·
+                    Qty {item.quantity} Ãƒâ€šÃ‚Â·
                     {Number(item.unit_price).toLocaleString('en-IN')}
                   </p>
                 </div>
@@ -179,7 +220,7 @@ export default function Orders() {
               <b>Delivery address</b>
 
               <p className="mt-1">
-                {order.address?.full_name} Ã‚Â· {order.address?.phone}
+                {order.address?.full_name} Ãƒâ€šÃ‚Â· {order.address?.phone}
               </p>
 
               <p>
