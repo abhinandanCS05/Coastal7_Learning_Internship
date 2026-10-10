@@ -1,0 +1,729 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark,.dark *));
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#101827;background:#f5f7f8;font-synthesis:none;text-rendering:optimizeLegibility}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px;min-height:100vh;background:#f5f7f8;color:#101827}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.65}img{max-width:100%}::selection{background:#c9f85b;color:#101827}
+.zeta-wordmark{display:inline-flex;align-items:center;font-size:2rem;font-weight:950;letter-spacing:-.095em;color:#101827;text-decoration:none;line-height:1}.zeta-wordmark span{display:inline-flex;align-items:center;justify-content:center;margin-left:4px;width:1.55rem;height:1.55rem;border-radius:.48rem;background:#c9f85b;color:#101827;font-size:1.25rem;letter-spacing:-.06em}
+.zeta-auth{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(420px,.95fr);min-height:100vh;background:#fff}.zeta-auth-brand{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;min-height:100vh;padding:clamp(28px,5vw,76px);background:#09111d;color:#fff}.zeta-auth-brand:before{content:"";position:absolute;inset:0;z-index:-2;background:radial-gradient(ellipse at 15% 80%,#c9f85b20,transparent 40%),radial-gradient(ellipse at 85% 12%,#4567ff38,transparent 42%)}.zeta-auth-brand .zeta-wordmark{color:white;font-size:2.2rem}
+.zeta-brand-copy{position:relative;max-width:610px;margin:auto 0;padding:65px 0}.zeta-eyebrow,.zeta-form-kicker{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:850;letter-spacing:.16em;color:#d3f99b}.zeta-eyebrow{border:1px solid #ffffff25;border-radius:999px;padding:9px 13px;background:#ffffff09}.zeta-brand-copy h1{margin:25px 0 18px;font-size:clamp(3rem,5.6vw,5.8rem);font-weight:850;line-height:.98;letter-spacing:-.075em}.zeta-brand-copy h1 span{color:#c9f85b}.zeta-brand-copy p{max-width:440px;color:#b3bfce;font-size:1.05rem;line-height:1.8}.zeta-brand-perks{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}.zeta-brand-perks span{display:flex;align-items:center;gap:8px;padding:11px 13px;border:1px solid #ffffff20;border-radius:12px;color:#e3e9f0;font-size:.83rem}.zeta-brand-perks svg{color:#c9f85b}.zeta-brand-foot{font-size:.8rem;color:#7e8b9c}.zeta-glow{position:absolute;z-index:-1;width:260px;height:260px;border-radius:50%;filter:blur(90px);opacity:.25;pointer-events:none}.zeta-glow.one{right:-100px;top:25%;background:#c9f85b}.zeta-glow.two{left:15%;bottom:-180px;background:#4666ff}
+.zeta-auth-form-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:clamp(24px,5vw,76px);background:linear-gradient(135deg,#fff,#f8fafb)}.zeta-auth-form{width:100%;max-width:420px}.zeta-mobile-logo{display:none}.zeta-form-kicker{color:#55751a;margin-bottom:14px}.zeta-auth-form h2{font-size:clamp(2rem,3vw,2.75rem);letter-spacing:-.055em;line-height:1.1;margin:0;font-weight:850}.zeta-form-subtitle{margin:12px 0 30px;color:#667383;line-height:1.65}.zeta-field-label,.zeta-role-label{display:block;margin:18px 0 8px;color:#243041;font-size:.83rem;font-weight:750}.zeta-input{width:100%;height:51px;border:1px solid #dce2e7;border-radius:13px;padding:0 14px;background:#fff;color:#101827;outline:none;transition:border-color .18s,box-shadow .18s}.zeta-input:focus{border-color:#7ca82a;box-shadow:0 0 0 4px #c9f85b35}.zeta-password-wrap{position:relative}.zeta-password-wrap .zeta-input{padding-right:48px}.zeta-eye{position:absolute;right:8px;top:7px;width:37px;height:37px;border:0;border-radius:9px;background:transparent;color:#667383;display:grid;place-items:center}.zeta-role-label{margin-top:23px}.zeta-role-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px}.zeta-role-picker button{display:flex;align-items:center;gap:10px;text-align:left;padding:13px 11px;border:1px solid #dce2e7;border-radius:13px;background:#fff;color:#526071;transition:.18s}.zeta-role-picker button.selected{border-color:#a2cf4c;background:#f6fce9;color:#263c08;box-shadow:inset 0 0 0 1px #a2cf4c}.zeta-role-picker b,.zeta-role-picker small{display:block}.zeta-role-picker b{font-size:.84rem}.zeta-role-picker small{margin-top:3px;font-size:.68rem;color:#778393}.zeta-role-note{font-size:.72rem;line-height:1.5;color:#778393;margin:10px 0 0}.zeta-submit{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:53px;margin-top:24px;border:0;border-radius:13px;background:#c9f85b;color:#17220b;font-weight:850;box-shadow:0 8px 24px #a9d94330;transition:transform .18s,box-shadow .18s}.zeta-submit:hover{transform:translateY(-1px);box-shadow:0 12px 28px #a9d94350}.zeta-signup{text-align:center;font-size:.84rem;color:#6d7886;margin-top:24px}.zeta-signup a{font-weight:800;color:#42670d;text-decoration:none}.zeta-legal{text-align:center;color:#9aa3ad;font-size:.7rem;margin-top:25px}.zeta-error{border:1px solid #fecaca;background:#fff1f2;color:#b42318;padding:12px 14px;border-radius:12px;font-size:.84rem;margin:0 0 18px}
+.zeta-wordmark:not(.zeta-auth-brand .zeta-wordmark){color:#101827}.dark body{background:#080d18;color:#e7edf4}
+@media(max-width:760px){.zeta-auth{grid-template-columns:1fr}.zeta-auth-brand{display:none}.zeta-auth-form-wrap{min-height:100svh;padding:25px 22px}.zeta-mobile-logo{display:inline-flex;margin-bottom:42px}.zeta-auth-form h2{font-size:2.2rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* zetA launch design system â€” additive, preserves existing Tailwind utilities */
+:root {
+  --zeta-ink: #080b1f;
+  --zeta-violet: #5b35f5;
+  --zeta-lime: #c4fb55;
+  --zeta-muted: #64748b;
+  --zeta-line: rgba(148,163,184,.24);
+  --zeta-surface: rgba(255,255,255,.94);
+}
+html { scroll-behavior: smooth; }
+body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button, a { transition-property: color, background-color, border-color, box-shadow, transform, opacity; transition-duration: 160ms; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(91,53,245,.36); outline-offset: 2px; }
+.zetA-app { isolation: isolate; }
+.zetA-app > header { border-color: var(--zeta-line) !important; box-shadow: 0 6px 26px rgba(15,23,42,.035); }
+.zetA-app > header a[href^="/app"]:first-child { letter-spacing: -.075em; }
+.zetA-app main { padding-bottom: 2.5rem; }
+.zetA-app main > * { min-width: 0; }
+.zetA-app article { transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+.zetA-app article:hover { border-color: rgba(91,53,245,.26); }
+.zetA-app input, .zetA-app select, .zetA-app textarea { accent-color: var(--zeta-violet); }
+.zetA-app table { border-collapse: separate; border-spacing: 0; }
+.zetA-app table th { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; }
+.zetA-app img { image-rendering: auto; }
+.zetA-app footer { color: #64748b; }
+/* Header-launched support is anchored in the top navigation; its panel stays above content. */
+.zetA-app header .relative.inline-flex { white-space: nowrap; }
+/* Premium surfaces for catalog, cart, checkout, orders and admin cards. */
+.zetA-app .rounded-2xl.border, .zetA-app .rounded-3xl.border { border-color: var(--zeta-line); }
+.zetA-app .shadow-lg, .zetA-app .shadow-xl { --tw-shadow-color: rgba(15,23,42,.08); }
+@media (max-width: 767px) {
+  .zetA-app > header .max-w-\[1500px\] { gap: .55rem; }
+  .zetA-app main { padding-inline: .25rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+/* ==========================================================
+   zetA DESIGN SYSTEM — GLOBAL REDESIGN
+   Additive layer: existing application logic remains intact.
+   ========================================================== */
+
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color-scheme: light;
+  --zeta-ink: #11152b;
+  --zeta-muted: #68718a;
+  --zeta-violet: #6254e8;
+  --zeta-cyan: #20c9dc;
+  --zeta-border: #e7eaf2;
+  --zeta-surface: #ffffff;
+  --zeta-page: #f6f7fb;
+}
+
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--zeta-page); color: var(--zeta-ink); }
+button, input, select, textarea { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+::selection { background: #dcd8ff; color: #17113f; }
+
+.zetA-app {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(99, 102, 241, .045), transparent 34rem),
+    var(--zeta-page);
+  color: var(--zeta-ink);
+}
+
+.zetA-app header {
+  border-color: rgba(226, 230, 240, .9);
+  box-shadow: 0 4px 24px rgba(23, 30, 60, .035);
+}
+
+.zetA-app main {
+  padding-top: 1.75rem;
+}
+
+.zetA-app footer {
+  color: #858ca1;
+}
+
+.zetA-app h1,
+.zetA-app h2,
+.zetA-app h3 {
+  letter-spacing: -.025em;
+}
+
+.zetA-app h1 { line-height: 1.08; }
+.zetA-app h2 { line-height: 1.2; }
+
+.zetA-app input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.zetA-app select,
+.zetA-app textarea {
+  max-width: 100%;
+  border-radius: .8rem;
+  border-color: #dfe3ef;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.zetA-app input:focus,
+.zetA-app select:focus,
+.zetA-app textarea:focus {
+  outline: none;
+  border-color: #8175f1;
+  box-shadow: 0 0 0 3px rgba(98, 84, 232, .12);
+}
+
+.zetA-app button {
+  transition-property: color, background-color, border-color, box-shadow, transform;
+  transition-duration: 160ms;
+}
+
+.zetA-app button:focus-visible,
+.zetA-app a:focus-visible {
+  outline: 3px solid rgba(98, 84, 232, .45);
+  outline-offset: 3px;
+}
+
+.zetA-app button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.zetA-app a {
+  text-underline-offset: 3px;
+}
+
+.zetA-app main article,
+.zetA-app main [class*="rounded-2xl"][class*="border"],
+.zetA-app main [class*="rounded-xl"][class*="border"] {
+  border-color: var(--zeta-border);
+}
+
+.zetA-app main article {
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.zetA-app main article:hover {
+  border-color: #d8d4ff;
+  box-shadow: 0 14px 35px rgba(31, 35, 75, .07);
+}
+
+.zetA-app main img {
+  max-width: 100%;
+}
+
+.zetA-app main table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.zetA-app main th {
+  color: #626b83;
+  font-size: .72rem;
+  font-weight: 750;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+.zetA-app main td,
+.zetA-app main th {
+  padding: .85rem 1rem;
+}
+
+.zetA-app main tbody tr:hover {
+  background: rgba(98, 84, 232, .035);
+}
+
+.zetA-app .bg-indigo-600 {
+  background-color: var(--zeta-violet);
+}
+
+.zetA-app .hover\:bg-indigo-700:hover {
+  background-color: #5143d0;
+}
+
+.zetA-app .text-indigo-600 {
+  color: var(--zeta-violet);
+}
+
+.zetA-app .border-indigo-500,
+.zetA-app .border-indigo-600 {
+  border-color: var(--zeta-violet);
+}
+
+.zetA-app .focus\:ring-indigo-500:focus {
+  --tw-ring-color: rgba(98, 84, 232, .35);
+}
+
+.zetA-app .shadow-xl,
+.zetA-app .shadow-2xl {
+  --tw-shadow-color: rgba(24, 28, 60, .10);
+}
+
+.zetA-app .rounded-2xl {
+  border-radius: 1.15rem;
+}
+
+.zetA-app .rounded-3xl {
+  border-radius: 1.5rem;
+}
+
+/* The header controls remain in the navigation flow. */
+.zetA-app header button,
+.zetA-app header a {
+  flex-shrink: 0;
+}
+
+.zetA-app header button[title="Logout"] {
+  min-width: 42px;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dark theme: keep the same brand identity and readable surfaces. */
+.dark {
+  color-scheme: dark;
+  --zeta-border: #293047;
+  --zeta-surface: #111729;
+  --zeta-page: #090d19;
+  --zeta-ink: #edf0fb;
+  --zeta-muted: #a1abc2;
+}
+
+.dark body {
+  background: #090d19;
+  color: #edf0fb;
+}
+
+.dark .zetA-app {
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(99, 102, 241, .09), transparent 34rem),
+    #090d19;
+  color: #edf0fb;
+}
+
+.dark .zetA-app header {
+  border-color: #293047;
+  background-color: rgba(10, 14, 28, .94);
+}
+
+.dark .zetA-app input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.dark .zetA-app select,
+.dark .zetA-app textarea {
+  border-color: #343b53;
+  background-color: #111729;
+  color: #edf0fb;
+}
+
+.dark .zetA-app main article,
+.dark .zetA-app main [class*="rounded-2xl"][class*="border"],
+.dark .zetA-app main [class*="rounded-xl"][class*="border"] {
+  border-color: #293047;
+}
+
+.dark .zetA-app main tbody tr:hover {
+  background: rgba(129, 117, 241, .08);
+}
+
+@media (max-width: 767px) {
+  .zetA-app main { padding-top: 1rem; }
+  .zetA-app main h1 { font-size: clamp(1.75rem, 7vw, 2.5rem); }
+  .zetA-app main h2 { font-size: clamp(1.25rem, 5vw, 1.75rem); }
+  .zetA-app main td,
+  .zetA-app main th { padding: .65rem .7rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===== zetA coordinated visual refresh ===== */
+:root {
+  --zeta-lime: #c9f85b;
+  --zeta-indigo: #635bff;
+  --zeta-canvas: #f5f7fb;
+  --zeta-surface: #ffffff;
+  --zeta-border: #e5eaf2;
+  --zeta-text: #121a2b;
+  --zeta-muted: #68758a;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--zeta-canvas); }
+#root { min-height: 100vh; }
+button, a, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+a { text-underline-offset: 3px; }
+button:focus-visible, a:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #a3d63f;
+  outline-offset: 3px;
+}
+::selection { background: var(--zeta-lime); color: #121a2b; }
+
+/* Typography and consistent page rhythm */
+main { min-width: 0; }
+main > section { min-width: 0; }
+main h1 { letter-spacing: -.045em; text-wrap: balance; }
+main h2 { letter-spacing: -.03em; text-wrap: balance; }
+main p { text-wrap: pretty; }
+
+/* Buttons: preserve their existing colors and behavior */
+main button, header button {
+  transition: box-shadow .18s ease, filter .18s ease, transform .18s ease;
+}
+main button:not(:disabled):active { transform: translateY(1px); }
+main button:disabled { cursor: not-allowed; opacity: .58; }
+
+/* Shared cards and surfaces across catalogue, cart, orders and admin */
+main article, main [class*="rounded-2xl"][class*="border"],
+main [class*="rounded-3xl"][class*="border"] {
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+main article:hover {
+  border-color: #c8d2e2;
+  box-shadow: 0 14px 38px -28px rgba(27, 39, 65, .38);
+}
+main img { max-width: 100%; }
+main input:not([type="checkbox"]):not([type="radio"]),
+main select, main textarea {
+  max-width: 100%;
+  border-radius: 12px;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+main input:focus, main select:focus, main textarea:focus {
+  border-color: #9ac53c;
+  box-shadow: 0 0 0 3px rgba(201, 248, 91, .23);
+}
+
+/* Dashboard and customer pages */
+main > section:first-child { isolation: isolate; }
+main > section a { min-width: 0; }
+main a img { backface-visibility: hidden; }
+main table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+main thead th {
+  font-size: .69rem;
+  font-weight: 800;
+  letter-spacing: .085em;
+  text-transform: uppercase;
+}
+main th, main td { vertical-align: middle; }
+main tbody tr { transition: background .15s ease; }
+main tbody tr:hover { background: #f7f9fc; }
+
+/* Theme-aware styling: the app's existing html.dark theme remains in control */
+html.dark body { background: #0b111b; color: #e8edf4; }
+html.dark main { color: #e8edf4; }
+html.dark main .text-slate-950,
+html.dark main .text-slate-900,
+html.dark main .text-slate-800 { color: #f1f5f9; }
+html.dark main .text-slate-700 { color: #dbe4ef; }
+html.dark main .text-slate-600 { color: #c0cad8; }
+html.dark main .text-slate-500 { color: #9aa9bc; }
+html.dark main .bg-white { background-color: #111b29; }
+html.dark main .bg-slate-50 { background-color: #0e1724; }
+html.dark main .bg-slate-100 { background-color: #172334; }
+html.dark main .border-slate-100,
+html.dark main .border-slate-200 { border-color: #29384b; }
+html.dark main .border-slate-300 { border-color: #35465a; }
+html.dark main tbody tr:hover { background: #162233; }
+html.dark main input,
+html.dark main select,
+html.dark main textarea {
+  background-color: #111b29;
+  color: #e8edf4;
+  border-color: #35465a;
+}
+html.dark main input::placeholder,
+html.dark main textarea::placeholder { color: #8493a8; }
+
+/* Responsive layouts, especially admin tables and cart summaries */
+@media (max-width: 720px) {
+  main { overflow-wrap: anywhere; }
+  main > section { border-radius: 20px; }
+  main table { display: block; overflow-x: auto; white-space: nowrap; }
+  main h1 { line-height: 1.04; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+/* ===== end zetA coordinated visual refresh ===== */
+
+/* ===== zetA page-level refinement ===== */
+.zeta-page {
+  width: 100%;
+  min-width: 0;
+  padding-bottom: 2.5rem;
+}
+.zeta-page > h1 {
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 850;
+  letter-spacing: -.045em;
+  line-height: 1.1;
+}
+.zeta-page > section,
+.zeta-page > div {
+  min-width: 0;
+}
+.zeta-page article {
+  border-radius: 1.15rem;
+  overflow: hidden;
+}
+.zeta-page article img {
+  transition: transform .35s ease;
+}
+.zeta-page article:hover img {
+  transform: scale(1.025);
+}
+.zeta-page table {
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 14px;
+}
+.zeta-page thead th {
+  padding-top: .9rem;
+  padding-bottom: .9rem;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.zeta-page tbody td {
+  padding-top: .85rem;
+  padding-bottom: .85rem;
+}
+.zeta-page input:not([type="checkbox"]):not([type="radio"]),
+.zeta-page select,
+.zeta-page textarea {
+  min-height: 42px;
+  max-width: 100%;
+  border-radius: 12px;
+}
+.zeta-page button:focus-visible,
+.zeta-page a:focus-visible {
+  outline: 3px solid #b4e94e;
+  outline-offset: 3px;
+}
+html.dark .zeta-page tbody tr:hover {
+  background-color: #172334;
+}
+@media (max-width: 640px) {
+  .zeta-page { padding-bottom: 1.5rem; }
+  .zeta-page table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zeta-page article img { transition: none; }
+}
+/* ===== end zetA page-level refinement ===== */
+
+/* ==========================================================
+   zetA COMPLETE PAGE DESIGN SYSTEM
+   Responsive, accessible and compatible with html.dark.
+   ========================================================== */
+:root {
+  --zeta-lime: #c9f85b;
+  --zeta-violet: #625bf6;
+  --zeta-ink: #121a2b;
+  --zeta-muted: #69768b;
+  --zeta-line: #e3e9f2;
+  --zeta-paper: #fff;
+  --zeta-canvas: #f5f7fb;
+  --zeta-radius: 20px;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--zeta-canvas); }
+#root { min-height: 100vh; }
+::selection { background: var(--zeta-lime); color: var(--zeta-ink); }
+
+.zeta-page {
+  width: 100%;
+  min-width: 0;
+  padding-bottom: clamp(1.5rem, 3vw, 3rem);
+}
+.zeta-page h1 {
+  font-weight: 850;
+  letter-spacing: -.045em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.zeta-page h2, .zeta-page h3 { letter-spacing: -.025em; }
+.zeta-page p { text-wrap: pretty; }
+.zeta-page img { max-width: 100%; }
+.zeta-page button, .zeta-page a,
+header button, header a {
+  -webkit-tap-highlight-color: transparent;
+}
+.zeta-page button:focus-visible,
+.zeta-page a:focus-visible,
+.zeta-page input:focus-visible,
+.zeta-page select:focus-visible,
+.zeta-page textarea:focus-visible {
+  outline: 3px solid #a6d642;
+  outline-offset: 3px;
+}
+.zeta-page button:not(:disabled) {
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.zeta-page button:not(:disabled):active { transform: translateY(1px); }
+.zeta-page button:disabled { cursor: not-allowed; opacity: .58; }
+
+.zeta-page input:not([type="checkbox"]):not([type="radio"]),
+.zeta-page select, .zeta-page textarea {
+  max-width: 100%;
+  border-radius: 12px;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.zeta-page input:focus, .zeta-page select:focus,
+.zeta-page textarea:focus {
+  border-color: #9ac53c;
+  box-shadow: 0 0 0 3px rgba(201,248,91,.24);
+}
+
+/* Dashboard: cinematic hero, category tiles and offer cards */
+.zeta-dashboard { display: flex; flex-direction: column; gap: clamp(1.5rem, 3vw, 2.5rem); }
+.zeta-dashboard > section:first-child {
+  isolation: isolate;
+  box-shadow: 0 24px 70px -38px rgba(83,77,210,.55);
+}
+.zeta-dashboard > section:first-child h1 { max-width: 12ch; }
+.zeta-dashboard > section:not(:first-child) { min-width: 0; }
+.zeta-dashboard > section a { min-width: 0; }
+.zeta-dashboard > section a img {
+  backface-visibility: hidden;
+  transition: transform .55s ease;
+}
+.zeta-dashboard > section a:hover img { transform: scale(1.035); }
+.zeta-dashboard > section:nth-child(2) > div {
+  border-radius: 18px;
+  box-shadow: 0 12px 32px -28px rgba(16,24,40,.5);
+}
+.zeta-dashboard > section:nth-child(3) a {
+  box-shadow: 0 15px 35px -25px rgba(16,24,40,.55);
+}
+
+/* Product catalogue: consistent cards and calmer image surfaces */
+.zeta-products article {
+  border-radius: 19px;
+  overflow: hidden;
+  box-shadow: 0 7px 24px -22px rgba(16,24,40,.55);
+}
+.zeta-products article:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 18px 42px -28px rgba(37,43,70,.35);
+}
+.zeta-products article img {
+  transition: transform .35s ease;
+}
+.zeta-products article:hover img { transform: scale(1.035); }
+.zeta-products article button { touch-action: manipulation; }
+.zeta-products input, .zeta-products select { min-height: 42px; }
+
+/* Product details: gallery, pricing and purchase panel */
+.zeta-product-details > div {
+  min-width: 0;
+}
+.zeta-product-details > div.rounded-3xl {
+  border-radius: 24px;
+  box-shadow: 0 20px 55px -42px rgba(16,24,40,.45);
+}
+.zeta-product-details img { display: block; }
+.zeta-product-details button { min-height: 44px; }
+.zeta-product-details select { min-width: 68px; }
+
+/* Cart: clear item surfaces and prominent totals */
+.zeta-cart > div,
+.zeta-cart > section { min-width: 0; }
+.zeta-cart article, .zeta-cart .cart-item {
+  border-radius: 18px;
+}
+.zeta-cart h1 { margin-bottom: .2rem; }
+.zeta-cart button { touch-action: manipulation; }
+.zeta-cart img { object-fit: cover; }
+
+/* Checkout: distinct form sections and readable order summary */
+.zeta-checkout > div,
+.zeta-checkout > section { min-width: 0; }
+.zeta-checkout section > div {
+  border-radius: 18px;
+}
+.zeta-checkout form { min-width: 0; }
+.zeta-checkout label {
+  font-size: .875rem;
+  font-weight: 650;
+}
+.zeta-checkout input, .zeta-checkout select,
+.zeta-checkout textarea { width: 100%; }
+.zeta-checkout button[type="submit"] {
+  min-height: 48px;
+  font-weight: 800;
+}
+
+/* Orders: tidy history cards and stable status labels */
+.zeta-orders > div { min-width: 0; }
+.zeta-orders > div > div.rounded-2xl {
+  border-radius: 19px;
+  box-shadow: 0 12px 32px -28px rgba(16,24,40,.4);
+}
+.zeta-orders button { touch-action: manipulation; }
+.zeta-orders time { color: var(--zeta-muted); }
+
+/* Admin: data workspace, metric cards, responsive tables */
+.zeta-admin { display: flex; flex-direction: column; gap: 1.5rem; }
+.zeta-admin > section:first-child {
+  border-radius: 24px;
+  box-shadow: 0 25px 65px -40px rgba(69,55,190,.7);
+}
+.zeta-admin > section:nth-child(2) > div {
+  border-radius: 18px;
+  box-shadow: 0 12px 30px -27px rgba(16,24,40,.45);
+}
+.zeta-admin > section:not(:first-child) {
+  min-width: 0;
+}
+.zeta-admin table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.zeta-admin thead th {
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.zeta-admin tbody tr { transition: background .15s ease; }
+.zeta-admin tbody tr:hover { background: #f5f7fb; }
+.zeta-admin input, .zeta-admin select, .zeta-admin textarea {
+  max-width: 100%;
+}
+.zeta-admin button { touch-action: manipulation; }
+
+/* Shared data table polish */
+.zeta-page table { border-spacing: 0; }
+.zeta-page th, .zeta-page td { vertical-align: middle; }
+.zeta-page td { overflow-wrap: anywhere; }
+
+/* Dark mode: retain strong contrast without flattening the hero gradients */
+html.dark body { background: #0b111b; color: #e8edf4; }
+html.dark .zeta-page { color: #e8edf4; }
+html.dark .zeta-page .text-slate-950,
+html.dark .zeta-page .text-slate-900,
+html.dark .zeta-page .text-slate-800 { color: #f1f5f9; }
+html.dark .zeta-page .text-slate-700 { color: #dbe4ef; }
+html.dark .zeta-page .text-slate-600 { color: #c0cad8; }
+html.dark .zeta-page .text-slate-500 { color: #9aa9bc; }
+html.dark .zeta-page .bg-white { background-color: #111b29; }
+html.dark .zeta-page .bg-slate-50 { background-color: #0e1724; }
+html.dark .zeta-page .bg-slate-100 { background-color: #172334; }
+html.dark .zeta-page .border-slate-100,
+html.dark .zeta-page .border-slate-200 { border-color: #29384b; }
+html.dark .zeta-page .border-slate-300 { border-color: #35465a; }
+html.dark .zeta-page input,
+html.dark .zeta-page select,
+html.dark .zeta-page textarea {
+  background-color: #111b29;
+  color: #e8edf4;
+  border-color: #35465a;
+}
+html.dark .zeta-page input::placeholder,
+html.dark .zeta-page textarea::placeholder { color: #8493a8; }
+html.dark .zeta-admin tbody tr:hover,
+html.dark .zeta-page tbody tr:hover { background: #172334; }
+
+/* Mobile layouts: avoid clipped content and unusable admin tables */
+@media (max-width: 760px) {
+  .zeta-page { overflow-wrap: anywhere; }
+  .zeta-page > section { min-width: 0; }
+  .zeta-dashboard > section:first-child { border-radius: 22px; }
+  .zeta-dashboard > section:first-child h1 { font-size: clamp(2.25rem, 10vw, 4rem); }
+  .zeta-admin table, .zeta-orders table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .zeta-cart img { max-width: 38vw; }
+  .zeta-checkout input, .zeta-checkout select { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+/* ===== end zetA complete page design system ===== */

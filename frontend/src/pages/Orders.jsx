@@ -1,0 +1,238 @@
+import { useEffect, useRef, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { PackageCheck, RefreshCw, FileText, Download } from 'lucide-react';
+import api from '../services/api';
+
+export default function Orders() {
+  const queryClient = useQueryClient();
+  const ws = useRef(null);
+
+  const [invoiceBusyId, setInvoiceBusyId] = useState(null);
+  const [invoiceError, setInvoiceError] = useState('');
+
+  async function downloadInvoice(orderId) {
+    if (invoiceBusyId !== null) return;
+    setInvoiceBusyId(orderId);
+    setInvoiceError('');
+    try {
+      const response = await api.get(`/orders/${orderId}/invoice`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `zetA_invoice_${String(orderId).padStart(6, '0')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (requestError) {
+      setInvoiceError(
+        requestError.response?.data?.detail ||
+        'Unable to download invoice. Please try again.'
+      );
+    } finally {
+      setInvoiceBusyId(null);
+    }
+  }
+
+  const {
+    data: orders = [],
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['orders'],
+    queryFn: async () => {
+      const response = await api.get('/orders');
+      return response.data;
+    },
+    staleTime: 30 * 1000,
+  });
+
+
+  useEffect(() => {
+    const token = localStorage.getItem('zetA_token');
+
+    if (!token) {
+      return undefined;
+    }
+
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+
+    ws.current = new WebSocket(
+      `${proto}://${location.host.replace(':5173', ':8000')}/ws/orders?token=${encodeURIComponent(token)}`
+    );
+
+    ws.current.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+
+        if (!message.order) {
+          return;
+        }
+
+        queryClient.setQueryData(['orders'], (previous = []) => {
+          const exists = previous.some(
+            (order) => order.id === message.order.id
+          );
+
+          return exists
+            ? previous.map((order) =>
+                order.id === message.order.id
+                  ? message.order
+                  : order
+              )
+            : [message.order, ...previous];
+        });
+      } catch {
+        // Ignore malformed WebSocket messages.
+      }
+    };
+
+    ws.current.onerror = () => {
+      // REST/React Query remains the fallback when WebSocket is unavailable.
+    };
+
+    return () => {
+      ws.current?.close();
+      ws.current = null;
+    };
+  }, [queryClient]);
+
+  if (isLoading) {
+    return (
+      <main className="zeta-page zeta-orders zeta-page py-20 text-center">
+        <RefreshCw className="mx-auto mb-3 animate-spin" size={28} />
+        <p className="text-slate-500">Loading your ordersÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦</p>
+      </main>
+    );
+  }
+
+  return (
+    <main className="zeta-page zeta-orders zeta-page py-8">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-black">My Orders</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Track every order and its latest admin-updated status in real time.
+          </p>
+        </div>
+
+        <button
+          onClick={() => refetch()}
+          disabled={isFetching}
+          className="rounded-xl border p-2.5 disabled:opacity-50"
+          title="Refresh"
+        >
+          <RefreshCw
+            size={17}
+            className={isFetching ? 'animate-spin' : ''}
+          />
+        </button>
+      </div>
+
+      {isError && (
+        <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {error?.response?.data?.detail ||
+            'Unable to load orders.'}
+        </div>
+      )}
+
+      {!isError && !orders.length && (
+        <div className="mt-6 rounded-2xl border p-10 text-center text-slate-500">
+          <PackageCheck className="mx-auto mb-3" size={40} />
+          <p>No orders yet.</p>
+        </div>
+      )}
+
+      <div className="mt-6 space-y-4">
+        {orders.map((order) => (
+          <div
+            key={order.id}
+            className="rounded-2xl border bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-bold">Order #{order.id}</p>
+                <p className="text-xs text-slate-500">
+                  {new Date(order.created_at).toLocaleString()}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => downloadInvoice(order.id)}
+                  disabled={invoiceBusyId !== null}
+                  className="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-white px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-50 disabled:opacity-50 dark:border-indigo-900 dark:bg-slate-900 dark:text-indigo-300"
+                >
+                  {invoiceBusyId === order.id ? <Download size={15} className="animate-bounce" /> : <FileText size={15} />}
+                  {invoiceBusyId === order.id ? 'Preparing…' : 'Download invoice'}
+                </button>
+                <span
+                className={`rounded-full px-3 py-1 text-xs font-bold ${
+                  order.status === 'DELIVERED'
+                    ? 'bg-green-100 text-green-700'
+                    : order.status === 'CANCELLED'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-indigo-50 text-indigo-700'
+                }`}
+              >
+                {order.status}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {order.items.map((item, index) => (
+                <div
+                  key={`${item.product_id}-${index}`}
+                  className="rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-800"
+                >
+                  <b>{item.name}</b>
+                  <p>
+                    Qty {item.quantity} Ãƒâ€šÃ‚Â·
+                    {Number(item.unit_price).toLocaleString('en-IN')}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 grid gap-2 text-sm sm:grid-cols-3">
+              <span>
+                Payment: <b>{order.payment_method}</b>
+              </span>
+
+              <span>
+                Payment status: <b>{order.payment_status}</b>
+              </span>
+
+              <span className="text-xl font-black sm:text-right">
+                {Number(order.total).toLocaleString('en-IN')}
+              </span>
+            </div>
+
+            <div className="mt-4 rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-800">
+              <b>Delivery address</b>
+
+              <p className="mt-1">
+                {order.address?.full_name} Ãƒâ€šÃ‚Â· {order.address?.phone}
+              </p>
+
+              <p>
+                {order.address?.address_line},{' '}
+                {order.address?.city},{' '}
+                {order.address?.state} -{' '}
+                {order.address?.pincode}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
+  );
+}

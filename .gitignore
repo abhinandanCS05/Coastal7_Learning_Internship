@@ -1,0 +1,20 @@
+backend/.venv/
+backend/venv/
+__pycache__/
+*.pyc
+backend/shopflow.db
+backend/.env
+backend/uploads/*
+!backend/uploads/.gitkeep
+frontend/node_modules/
+frontend/dist/
+.env
+.vscode/
+.idea/
+
+# Day 20 local vector index
+backend/data/chroma/
+
+# Local frontend configuration
+frontend/.env*
+!frontend/.env.example
