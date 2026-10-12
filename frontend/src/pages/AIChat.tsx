@@ -1,5 +1,6 @@
 ﻿import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import Day21Tools from "./Day21Tools";
 import { Bot, Check, ChevronRight, CircleHelp, LoaderCircle, Send, Sparkles, UserRound, X } from "lucide-react";
 
 type Source = {
@@ -278,6 +279,7 @@ export default function AIChat() {
       </section>
 
       <aside className="space-y-4">
+        <Day21Tools />
         <div className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center gap-2 text-sm font-bold"><Sparkles size={17} className="text-indigo-600" /> Try asking</div>
           <div className="mt-3 space-y-2">
@@ -301,3 +303,4 @@ export default function AIChat() {
     </div>
   );
 }
+

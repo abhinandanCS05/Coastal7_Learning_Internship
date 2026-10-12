@@ -1,41 +1,37 @@
-"""Day 20 AI services: catalogue RAG, Chroma persistence, and provider fallback."""
+﻿"""Day 20 AI services: catalogue RAG, Chroma persistence, and provider fallback."""
 from __future__ import annotations
 
-import hashlib
-import math
 import os
-import re
 from pathlib import Path
 from typing import Iterable
 
 import chromadb
+from fastembed import TextEmbedding
 from openai import OpenAI
 from langchain_core.prompts import ChatPromptTemplate
 
 from .models import Product
 
-# A deterministic local embedding keeps setup lightweight and avoids downloading
-# a large model. Replace with a hosted/local semantic embedding model if required.
-_EMBEDDING_DIM = 384
-_COLLECTION_NAME = "shopflow_product_catalogue"
+# Day 21: pretrained semantic embeddings via FastEmbed/ONNX.
+# Use a new collection name because existing vectors were made by token hashing.
+_EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
+_COLLECTION_NAME = "shopflow_product_catalogue_semantic_v1"
+_embedding_model = None
 
 
-def _tokenize(text: str) -> list[str]:
-    return re.findall(r"[a-z0-9]+", (text or "").lower())
+def _get_embedding_model():
+    global _embedding_model
+    if _embedding_model is None:
+        _embedding_model = TextEmbedding(model_name=_EMBEDDING_MODEL)
+    return _embedding_model
 
 
 def _embed_text(text: str) -> list[float]:
-    vector = [0.0] * _EMBEDDING_DIM
-    tokens = _tokenize(text)
-    if not tokens:
-        return vector
-    for token in tokens:
-        digest = hashlib.blake2b(token.encode("utf-8"), digest_size=8).digest()
-        index = int.from_bytes(digest[:4], "little") % _EMBEDDING_DIM
-        sign = 1.0 if digest[4] % 2 == 0 else -1.0
-        vector[index] += sign
-    norm = math.sqrt(sum(value * value for value in vector)) or 1.0
-    return [value / norm for value in vector]
+    """Encode one string using a pretrained semantic embedding model."""
+    cleaned = (text or "").strip()
+    if not cleaned:
+        return [0.0] * 384
+    return [float(value) for value in next(_get_embedding_model().embed([cleaned]))]
 
 
 def _catalogue_document(product: Product) -> str:
@@ -44,8 +40,8 @@ def _catalogue_document(product: Product) -> str:
         f"Name: {product.name}\n"
         f"Category: {product.category}\n"
         f"Subcategory: {product.subcategory}\n"
-        f"Price: ₹{product.price}\n"
-        f"MRP: ₹{product.mrp}\n"
+        f"Price: â‚¹{product.price}\n"
+        f"MRP: â‚¹{product.mrp}\n"
         f"Stock: {product.stock}\n"
         f"Rating: {product.rating}/5 ({product.reviews} reviews)\n"
         f"Badge: {product.badge or 'None'}\n"
@@ -236,3 +232,9 @@ def stream_answer(prompt: str):
             # Only move to the next provider if no answer tokens were sent.
             continue
     yield {"type": "error", "message": "All configured AI providers failed: " + "; ".join(errors)}
+
+
+def semantic_search_products(question: str, products: Iterable[Product], top_k: int = 5) -> list[dict]:
+    """Search active products using pretrained semantic embeddings."""
+    return retrieve_products(question, products, top_k=top_k)
+

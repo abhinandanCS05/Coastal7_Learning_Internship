@@ -1,4 +1,4 @@
-from fastapi import (
+﻿from fastapi import (
     FastAPI,
     Depends,
     HTTPException,
@@ -36,6 +36,8 @@ from .config import settings
 from .seed_data import PRODUCTS
 from .day18 import router as day18_router
 from .ai_router import router as ai_router
+from .day21_router import router as day21_router
+from .day21_plus_router import router as day21_plus_router
 
 
 limiter = Limiter(key_func=get_remote_address)
@@ -49,6 +51,8 @@ app.mount("/files", StaticFiles(directory=str(settings.upload_dir)), name="files
 # Invoice PDFs are generated on demand and served through authenticated endpoints.
 app.include_router(day18_router)
 app.include_router(ai_router)
+app.include_router(day21_router)
+app.include_router(day21_plus_router)
 
 
 @app.middleware("http")
@@ -254,8 +258,8 @@ def remove_cart(product_id:int,user:User=Depends(current_user),db:Session=Depend
 @app.get("/offers")
 def offers():
     return [
-        {"code":"WELCOME10","title":"Welcome Offer","description":"10% off up to Ã¢â€šÂ¹500","type":"PERCENT","value":10,"min_order":999},
-        {"code":"SHOP500","title":"Flat Ã¢â€šÂ¹500 Off","description":"Ã¢â€šÂ¹500 off on orders above Ã¢â€šÂ¹7,999","type":"FLAT","value":500,"min_order":7999},
+        {"code":"WELCOME10","title":"Welcome Offer","description":"10% off up to ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹500","type":"PERCENT","value":10,"min_order":999},
+        {"code":"SHOP500","title":"Flat ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹500 Off","description":"ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹500 off on orders above ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹7,999","type":"FLAT","value":500,"min_order":7999},
         {"code":"FREESHIP","title":"Free Delivery","description":"Free delivery on eligible orders","type":"SHIPPING","value":0,"min_order":499}
     ]
 
@@ -600,7 +604,7 @@ def _invoice_pdf(order: Order, db: Session) -> bytes:
     ]
     meta = [
         [Paragraph("<b>INVOICE</b>", styles["Heading1"]),
-         Paragraph(f"<b>Invoice no.</b> INV-{order.id:06d}<br/><b>Order no.</b> #{order.id}<br/><b>Issued</b> {order.created_at.strftime('%d %b %Y') if order.created_at else 'â€”'}", styles["ZetaRight"])],
+         Paragraph(f"<b>Invoice no.</b> INV-{order.id:06d}<br/><b>Order no.</b> #{order.id}<br/><b>Issued</b> {order.created_at.strftime('%d %b %Y') if order.created_at else 'Ã¢â‚¬â€'}", styles["ZetaRight"])],
         [Paragraph("Order summary", styles["ZetaSection"]),
          Paragraph(f"<b>Order status:</b> {safe(order.status)}<br/><b>Payment method:</b> {safe(order.payment_method)}<br/><b>Payment status:</b> {safe(order.payment_status)}", styles["ZetaRight"])]
     ]
@@ -745,6 +749,7 @@ def order_json(o,db,items=None,customers=None):
     discount=500 if subtotal>=7999 else (round(subtotal*.10,2) if subtotal>=999 else 0)
     shipping=0 if subtotal>=499 else 49
     return {"id":o.id,"user_id":o.user_id,"total":o.total,"subtotal":subtotal,"discount":discount,"shipping":shipping,"payment_method":o.payment_method,"payment_status":o.payment_status,"status":o.status,"customer":{"id":customer.id if customer else o.user_id,"full_name":customer.full_name if customer else address.get("full_name",""),"email":customer.email if customer else "","phone":customer.phone if customer else address.get("phone","")},"address":address,"created_at":o.created_at.isoformat(),"items":[{"product_id":x.product_id,"name":x.product_name,"quantity":x.quantity,"unit_price":x.unit_price,"line_total":round(x.quantity*x.unit_price,2)} for x in items]}
+
 
 
 

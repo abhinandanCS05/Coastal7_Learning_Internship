@@ -1,3 +1,4 @@
+﻿import AdminDescriptionGenerator from "./AdminDescriptionGenerator";
 import { useEffect, useRef, useState } from "react";
 import {
   Upload,
@@ -591,6 +592,10 @@ export default function Admin() {
           {error}
         </div>
       )}
+
+      <section className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <AdminDescriptionGenerator />
+      </section>
 
       {/* ORDER COUNTERS */}
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
@@ -1629,3 +1634,4 @@ export default function Admin() {
     </main>
   );
 }
+
