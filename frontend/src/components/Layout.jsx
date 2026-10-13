@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import {
   Link,
   Outlet,
@@ -234,7 +234,7 @@ export default function Layout() {
         </main>
 
         <footer className="mt-16 border-t border-slate-200 py-8 text-center text-sm text-slate-500 dark:border-slate-800">
-          zetA Admin Console · Secure Operations
+          zetA Admin Console Â· Secure Operations
         </footer>
 
       </div>
@@ -403,6 +403,14 @@ export default function Layout() {
 
             <Link
               onClick={() => setOpen(false)}
+              to="/app/day22"
+              className="rounded-lg p-3 font-semibold text-indigo-600 hover:bg-slate-100"
+            >
+              Day 22 AI Tools
+            </Link>
+
+            <Link
+              onClick={() => setOpen(false)}
               to="/app/ai-assistant"
               className="rounded-lg p-3 hover:bg-slate-100"
             >
@@ -443,9 +451,10 @@ export default function Layout() {
       </main>
 
       <footer className="mt-16 border-t border-slate-200 py-8 text-center text-sm text-slate-500 dark:border-slate-800">
-        © 2026 zetA · Smart shopping, simple checkout.
+        Â© 2026 zetA Â· Smart shopping, simple checkout.
       </footer>
 
     </div>
   );
 }
+

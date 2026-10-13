@@ -1,4 +1,5 @@
 ﻿import AdminDescriptionGenerator from "./AdminDescriptionGenerator";
+import Day22AdminPanel from "./Day22AdminPanel";
 import { useEffect, useRef, useState } from "react";
 import {
   Upload,
@@ -595,6 +596,7 @@ export default function Admin() {
 
       <section className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <AdminDescriptionGenerator />
+      <Day22AdminPanel />
       </section>
 
       {/* ORDER COUNTERS */}
@@ -1634,4 +1636,5 @@ export default function Admin() {
     </main>
   );
 }
+
 

@@ -1,4 +1,4 @@
-import BackgroundJobs from "./pages/BackgroundJobs";
+﻿import BackgroundJobs from "./pages/BackgroundJobs";
 import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
@@ -19,7 +19,6 @@ const Orders = lazy(() => import("./pages/Orders"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const Admin = lazy(() => import("./pages/Admin"));
 const AIChat = lazy(() => import("./pages/AIChat"));
-
 function PageLoader() {
   return (
     <div className="flex min-h-[50vh] items-center justify-center">
@@ -73,3 +72,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+

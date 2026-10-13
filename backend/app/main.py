@@ -1,4 +1,5 @@
-﻿from fastapi import (
+
+from fastapi import (
     FastAPI,
     Depends,
     HTTPException,
@@ -37,7 +38,6 @@ from .seed_data import PRODUCTS
 from .day18 import router as day18_router
 from .ai_router import router as ai_router
 from .day21_router import router as day21_router
-from .day21_plus_router import router as day21_plus_router
 
 
 limiter = Limiter(key_func=get_remote_address)
@@ -52,7 +52,6 @@ app.mount("/files", StaticFiles(directory=str(settings.upload_dir)), name="files
 app.include_router(day18_router)
 app.include_router(ai_router)
 app.include_router(day21_router)
-app.include_router(day21_plus_router)
 
 
 @app.middleware("http")
@@ -752,4 +751,10 @@ def order_json(o,db,items=None,customers=None):
 
 
 
+
+
+from .day21_plus_router import router as day21_plus_router
+app.include_router(day21_plus_router)
+from app.day22_integration import router as day22_router
+app.include_router(day22_router)
 

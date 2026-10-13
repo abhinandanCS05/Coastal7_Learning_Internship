@@ -253,3 +253,49 @@ def demo_background_job(self, steps: int = 10):
         "message": "Background job completed successfully.",
         "steps": steps,
     }
+
+
+@celery_app.task(bind=True, name="shopflow.generate_product_description")
+def generate_product_description(self, product_name: str, product_details: str):
+    """Generate an e-commerce product description asynchronously."""
+    from .ai_service import stream_answer
+
+    name = str(product_name).strip()[:200]
+    details = str(product_details).strip()[:3000]
+
+    if not name or not details:
+        raise ValueError("Product name and details are required.")
+
+    prompt = (
+        "Write a concise, accurate e-commerce product description. "
+        "Use only the supplied details and do not invent specifications.\n\n"
+        f"Product: {name}\nDetails: {details}"
+    )
+
+    parts = []
+    provider = None
+
+    self.update_state(
+        state="PROGRESS",
+        meta={"percent": 10, "message": "Generating description"}
+    )
+
+    for event in stream_answer(prompt):
+        kind = event.get("type")
+        if kind == "provider":
+            provider = event.get("provider")
+        elif kind == "token":
+            parts.append(event.get("content", ""))
+        elif kind == "error":
+            raise RuntimeError(event.get("message", "AI generation failed"))
+
+    description = "".join(parts).strip()
+    if not description:
+        raise RuntimeError("No description returned. Check AI provider keys.")
+
+    return {
+        "status": "completed",
+        "product_name": name,
+        "description": description,
+        "provider": provider,
+    }

@@ -35,3 +35,7 @@ celery_app.conf.update(
     enable_utc=False,
     task_track_started=True,
 )
+
+
+# Ensure application background tasks are registered with Celery.
+import app.tasks  # noqa: E402

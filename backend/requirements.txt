@@ -20,3 +20,7 @@ python-dotenv>=1.0
 openai>=1.68.0
 chromadb>=0.6.3
 langchain-core>=0.3.40
+fastembed
+
+# Day 22 integration dependencies
+pytest

@@ -10,3 +10,4 @@ export function AuthProvider({children}){
  return <C.Provider value={{user,loading,login,logout}}>{children}</C.Provider>
 }
 export const useAuth=()=>useContext(C)
+
