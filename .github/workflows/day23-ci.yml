@@ -75,6 +75,11 @@ jobs:
   compose-smoke-test:
     name: Docker Compose integration test
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_PASSWORD: ci-compose-only-password
+      JWT_SECRET: ci-compose-only-secret
+      VITE_API_URL: http://localhost:8000
+      VITE_WS_URL: ws://localhost:8000
     needs: tests
     steps:
       - name: Checkout

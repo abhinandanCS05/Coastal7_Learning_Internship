@@ -1,10 +1,10 @@
-﻿services:
+services:
   postgres:
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: shopflow
       POSTGRES_USER: shopflow
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shopflow-local-only}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     ports:
       - "5432:5432"
     volumes:
@@ -38,9 +38,9 @@
       - path: ./backend/.env
         required: false
     environment:
-      DATABASE_URL: postgresql+psycopg2://shopflow:${POSTGRES_PASSWORD:-shopflow-local-only}@postgres:5432/shopflow
+      DATABASE_URL: postgresql+psycopg2://shopflow:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/shopflow
       REDIS_URL: redis://redis:6379/0
-      JWT_SECRET: ${JWT_SECRET:-local-development-only-change-me}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
       FRONTEND_ORIGIN: http://localhost:8080
       UPLOAD_DIR: /app/uploads
       AI_CHROMA_PATH: /app/data/chroma
@@ -72,9 +72,9 @@
       - path: ./backend/.env
         required: false
     environment:
-      DATABASE_URL: postgresql+psycopg2://shopflow:${POSTGRES_PASSWORD:-shopflow-local-only}@postgres:5432/shopflow
+      DATABASE_URL: postgresql+psycopg2://shopflow:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/shopflow
       REDIS_URL: redis://redis:6379/0
-      JWT_SECRET: ${JWT_SECRET:-local-development-only-change-me}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
       UPLOAD_DIR: /app/uploads
       AI_CHROMA_PATH: /app/data/chroma
     volumes:
@@ -97,9 +97,9 @@
       - path: ./backend/.env
         required: false
     environment:
-      DATABASE_URL: postgresql+psycopg2://shopflow:${POSTGRES_PASSWORD:-shopflow-local-only}@postgres:5432/shopflow
+      DATABASE_URL: postgresql+psycopg2://shopflow:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/shopflow
       REDIS_URL: redis://redis:6379/0
-      JWT_SECRET: ${JWT_SECRET:-local-development-only-change-me}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
     depends_on:
       redis:
         condition: service_healthy
@@ -110,8 +110,8 @@
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://localhost:8000
-        VITE_WS_URL: ws://localhost:8000
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        VITE_WS_URL: ${VITE_WS_URL:-ws://localhost:8000}
     ports:
       - "8080:8080"
     depends_on:
