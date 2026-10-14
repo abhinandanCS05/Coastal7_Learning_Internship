@@ -22,3 +22,5 @@ frontend/.env*
 # Day 23 local Compose secrets and generated data
 .env
 backend/.env
+
+.env
