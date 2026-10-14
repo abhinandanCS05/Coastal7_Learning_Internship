@@ -1,4 +1,4 @@
-﻿name: ShopFlow Day 23 DevOps CI
+name: ShopFlow Day 23 DevOps CI
 
 on:
   push:
@@ -46,6 +46,7 @@ jobs:
           JWT_SECRET: ci-only-test-secret
           FRONTEND_ORIGIN: http://localhost:5173
           REDIS_URL: redis://localhost:6379/0
+          PYTHONPATH: backend
         run: pytest -q backend/tests
 
       - name: Set up Node
