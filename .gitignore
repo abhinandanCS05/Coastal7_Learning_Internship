@@ -18,3 +18,7 @@ backend/data/chroma/
 # Local frontend configuration
 frontend/.env*
 !frontend/.env.example
+
+# Day 23 local Compose secrets and generated data
+.env
+backend/.env
