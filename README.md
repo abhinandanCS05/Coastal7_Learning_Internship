@@ -16,6 +16,7 @@
 <p align="center">
   <b>Internship Engineering Portfolio · Coastal Seven Technologies Private Limited</b><br/>
   <sub>Knowledge Factory Internship Program 2026 · Batch 7 · 15 Sep – 16 Oct 2026</sub>
+     Shop Flow Application : https://zeta-bwda.onrender.com
 </p>
 
 <p align="center">
